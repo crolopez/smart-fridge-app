@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">SmartFridge</string>
+    <string name="text_Search">Search</string>
+    <string name="text_Home">Home</string>
+    <string name="text_Setting">Setting</string>
+    <string name="text_List">List</string>
+    <string name="text_Map">Map</string>
+
+    <!-- SETTING -->
+    <!--SETTING CONNECTION-->
+    <string name="text_Setting_Connection_Tittle">Connection to server</string>
+    <string name="text_Setting_Connection_Host">Host</string>
+    <string name="text_Setting_Connection_Host2">Enter the IP address of the server</string>
+    <string name="text_Setting_Connection_Port">Port</string>
+    <string name="text_Setting_Connection_Port2">Enter the port to connect to the server</string>
+    <!--SETTING SERVER CONFIGURATION-->
+    <string name="text_Setting_Serverconfig_Tittle">Remote server configuration</string>
+    <string name="text_Setting_Serverconfig_inactivityMax">Inactivity max</string>
+    <string name="text_Setting_Serverconfig_inactivityMax2">Enter the maximum inactivity for readers in seconds</string>
+    <string name="text_Setting_Serverconfig_appWaitTime">App wait time</string>
+    <string name="text_Setting_Serverconfig_appWaitTime2">Enter how long the server will wait for the APP in seconds</string>
+    <string name="text_Setting_Serverconfig_lightSignal">Light signals</string>
+    <string name="text_Setting_Serverconfig_lightSignal2">Turn on/off light signals</string>
+    <string name="text_Setting_Serverconfig_countdownReset">Countdown reset</string>
+    <string name="text_Setting_Serverconfig_countdownReset2">Turn on/off the countdown reset when you press the physical button</string>
+
+
+</resources>

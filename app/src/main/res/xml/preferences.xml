@@ -1,0 +1,52 @@
+<PreferenceScreen
+    android:background="@color/colorFragmentBackground"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/text_Setting_Connection_Tittle">
+
+        <EditTextPreference
+            android:key="host"
+            android:title="@string/text_Setting_Connection_Host"
+            android:defaultValue="0.0.0.0"
+            android:dialogTitle="@string/text_Setting_Connection_Host2"/>
+
+        <EditTextPreference
+            android:key="port"
+            android:title="@string/text_Setting_Connection_Port"
+            android:defaultValue="5600"
+            android:dialogTitle="@string/text_Setting_Connection_Port2"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="@string/text_Setting_Serverconfig_Tittle">
+
+        <EditTextPreference
+            android:key="inactivityMax"
+            android:title="@string/text_Setting_Serverconfig_inactivityMax"
+            android:defaultValue="60"
+            android:dialogTitle="@string/text_Setting_Serverconfig_inactivityMax2"/>
+
+        <EditTextPreference
+            android:key="appWaitTime"
+            android:title="@string/text_Setting_Serverconfig_appWaitTime"
+            android:defaultValue="60"
+            android:dialogTitle="@string/text_Setting_Serverconfig_appWaitTime2"/>
+
+        <SwitchPreference
+            android:key="lightSignal"
+            android:title="@string/text_Setting_Serverconfig_lightSignal"
+            android:summary="@string/text_Setting_Serverconfig_lightSignal2"
+            android:defaultValue="true"/>
+
+        <SwitchPreference
+           android:key="countdownReset"
+           android:title="@string/text_Setting_Serverconfig_countdownReset"
+           android:summary="@string/text_Setting_Serverconfig_countdownReset2"
+           android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
