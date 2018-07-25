@@ -7,22 +7,35 @@ import android.support.design.widget.BottomNavigationView;
 import android.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
-
 
 public class MainActivity extends FragmentActivity {
 
     private BottomNavigationView bottomNavigationView;
+    private Home home_obj = null;
+    private Search search_obj = null;
+    private List list_obj = null;
+    private Setting setting_obj = null;
+    private Map map_obj = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.crolopez.smartfridge.R.layout.activity_main);
 
-        getFragmentManager().beginTransaction().add(com.crolopez.smartfridge.R.id.myfragment, new Home()).commit();
+        if (home_obj == null) {
+            home_obj = new Home();
+        }
+
+        if (setting_obj == null) {
+            setting_obj = new Setting();
+        }
+
+        setContentView(com.crolopez.smartfridge.R.layout.activity_main);
+        getFragmentManager().beginTransaction().add(com.crolopez.smartfridge.R.id.myfragment, setting_obj).commit();
+        getFragmentManager().beginTransaction().replace(com.crolopez.smartfridge.R.id.myfragment, home_obj).commit();
 
         bottomNavigationView = (BottomNavigationView) findViewById(com.crolopez.smartfridge.R.id.id_BottomNavigationView);
-
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -31,19 +44,34 @@ public class MainActivity extends FragmentActivity {
 
                 switch(item.getItemId()){
                     case com.crolopez.smartfridge.R.id.icon_home:
-                        newFragment = new Home();
+                        if (home_obj == null) {
+                            home_obj = new Home();
+                        }
+                        newFragment = home_obj;
                         break;
                     case com.crolopez.smartfridge.R.id.icon_search:
-                        newFragment = new Search();
+                        if (search_obj == null) {
+                            search_obj = new Search();
+                        }
+                        newFragment = search_obj;
                         break;
                     case com.crolopez.smartfridge.R.id.icon_list:
-                        newFragment = new List();
+                        if (list_obj == null) {
+                            list_obj = new List();
+                        }
+                        newFragment = list_obj;
                         break;
                     case com.crolopez.smartfridge.R.id.icon_setting:
-                        newFragment = new Setting();
+                        if (setting_obj == null) {
+                            setting_obj = new Setting();
+                        }
+                        newFragment = setting_obj;
                         break;
                     case com.crolopez.smartfridge.R.id.icon_map:
-                        newFragment = new Map();
+                        if (map_obj == null) {
+                            map_obj = new Map();
+                        }
+                        newFragment = map_obj;
                         break;
                 }
 

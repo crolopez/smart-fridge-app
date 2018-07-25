@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.util.Log;
 
 public class Setting extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -11,7 +12,7 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
             PREF_INMA="inactivityMax", PREF_APWT="appWaitTime",
             PREF_LS="lightSignal", PREF_CDR="countdownReset";
 
-    private SharedPreferences preferences;
+    private static SharedPreferences preferences = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,33 +36,33 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
 
     private void initValues(){
         preferences = getPreferenceManager().getSharedPreferences();
-        findPreference(PREF_H).setSummary( preferences.getString(PREF_H, null) );
-        findPreference(PREF_POR).setSummary( preferences.getString(PREF_POR, null) );
-        findPreference(PREF_APWT).setSummary( preferences.getString(PREF_APWT, null));
-        findPreference(PREF_INMA).setSummary( preferences.getString(PREF_INMA, null) );
+        findPreference(PREF_H).setSummary(preferences.getString(PREF_H, null));
+        findPreference(PREF_POR).setSummary(preferences.getString(PREF_POR, null));
+        findPreference(PREF_APWT).setSummary(preferences.getString(PREF_APWT, null));
+        findPreference(PREF_INMA).setSummary(preferences.getString(PREF_INMA, null));
     }
 
-    public String getServerHost(){
+    public static String getServerHost(){
         return preferences.getString(PREF_H, null);
     }
 
-    public String getServerPort(){
-        return preferences.getString(PREF_POR, null);
+    public static int getServerPort(){
+        return Integer.parseInt(preferences.getString(PREF_POR, null));
     }
 
-    public String getInactivityMax(){
+    public static String getInactivityMax(){
         return preferences.getString(PREF_INMA, null);
     }
 
-    public String getAppWait(){
+    public static String getAppWait(){
         return preferences.getString(PREF_APWT, null);
     }
 
-    public boolean getCountdownReset(){
+    public static boolean getCountdownReset(){
         return preferences.getBoolean(PREF_CDR, false);
     }
 
-    public boolean getLightSignal() {
+    public static boolean getLightSignal() {
         return preferences.getBoolean(PREF_LS, false);
     }
 
