@@ -9,12 +9,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import static java.lang.Thread.sleep;
 
 
 public class Home extends Fragment {
@@ -38,8 +43,51 @@ public class Home extends Fragment {
     }
 
     private void sync_database() {
-        Log.d("myTag", "~~~~~~~~~~~~ sync_database()0");
-        new Thread(new ServerConnect(Setting.getServerHost(), Setting.getServerPort())).start();
-        Log.d("myTag", "~~~~~~~~~~~~ sync_database()1");
+        Socket socket;
+        Thread socket_t;
+        ServerConnect socket_obj;
+        PrintWriter socket_out;
+
+        Log.d(TAG, "Starting database synchronization.");
+        socket_obj = new ServerConnect(Setting.getServerHost(), Setting.getServerPort(),  5 * 1000);
+        socket_t = new Thread(socket_obj);
+        socket_t.start();
+        try {
+            sleep(socket_obj.get_sock_timeout() + 1000);
+        } catch (InterruptedException e) {
+            Log.d(TAG, "Exception: sync_database(): 0");
+            e.printStackTrace();
+        }
+        socket = socket_obj.get_socket();
+        if (socket == null) {
+            Log.d(TAG, "The database could not be synchronized.");
+            set_fail_sync();
+        } else {
+            try {
+                socket_out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            } catch (IOException e) {
+                Log.d(TAG, "Exception: sync_database(): 1");
+                e.printStackTrace();
+            }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                Log.d(TAG, "Exception: sync_database(): 2");
+                e.printStackTrace();
+            }
+
+
+
+            Log.d(TAG, "Ending database synchronization.");
+            update_current_sync();
+        }
+    }
+
+    private void set_fail_sync() {
+
+    }
+
+    private void update_current_sync() {
+
     }
 }

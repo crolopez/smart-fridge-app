@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 import static android.content.ContentValues.TAG;
 
 public class ServerConnect implements Runnable {
+    private String TAG = "SERVER_CONNECT";
     byte[] data;
     private String s_host;
     private int s_port;
@@ -22,19 +23,33 @@ public class ServerConnect implements Runnable {
     int dataType = 1;
     private ByteArrayOutputStream request = null;
     private byte[] recv_msg = null;
+    private Socket s_socket = null;
+    private int s_timeout_ms = 0;
 
-    public ServerConnect(String host, int port) {
+    public ServerConnect(String host, int port, int timeout) {
         s_host = host;
         s_port = port;
+        s_timeout_ms = timeout;
     }
 
     @Override
     public void run() {
-        Socket socket = null;
         int bytesRead;
         InputStream input_stream;
         InetAddress server_addr;
         long sync_start_time = 0l;
+        Socket socket;
+
+        if(s_socket != null) {
+            try {
+                s_socket.close();
+            } catch (IOException e) {
+                Log.d(TAG, "Exception: run(): 0");
+                e.printStackTrace();
+            }
+        }
+
+        s_socket = null;
 
         if (request == null) {
             request = new ByteArrayOutputStream(1024);
@@ -45,22 +60,29 @@ public class ServerConnect implements Runnable {
         }
 
         try {
-            Log.d("myTag", "~~~~~~~~~~~~ run()0 " + s_host);
             server_addr = InetAddress.getByName(s_host);
-            Log.d("myTag", "~~~~~~~~~~~~ run()1 " + s_host);
             sync_start_time = System.currentTimeMillis();
-            Log.d("myTag", "~~~~~~~~~~~~ run()2 " + s_host);
             socket = new Socket();
-            Log.d("myTag", "~~~~~~~~~~~~ run()3 " + s_host);
-            socket.connect(new InetSocketAddress(server_addr, s_port), 5000);
+            socket.connect(new InetSocketAddress(server_addr, s_port), s_timeout_ms);
             Log.d(TAG, "Connection established with the server: " + (System.currentTimeMillis() - sync_start_time) + "ms");
-            //socket.close();
         } catch (UnknownHostException e) {
-            Log.e(TAG, "Exception: sync_database(): 0");
+            Log.d(TAG, "Exception: run(): 1");
+            socket = null;
             e.printStackTrace();
         } catch (IOException e) {
-            Log.e(TAG, "Exception: sync_database(): 1");
+            Log.d(TAG, "Exception: run(): 2");
+            socket = null;
             e.printStackTrace();
         }
+
+        s_socket = socket;
+    }
+
+    public Socket get_socket() {
+        return s_socket;
+    }
+
+    public int get_sock_timeout() {
+        return s_timeout_ms;
     }
 }
