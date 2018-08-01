@@ -1,6 +1,7 @@
 package com.crolopez.smartfridge;
 
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 //import android.support.v4.app.Fragment;
@@ -18,6 +19,7 @@ public class MainActivity extends FragmentActivity {
     private List list_obj = null;
     private Setting setting_obj = null;
     private Map map_obj = null;
+    private static Context application_context = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,10 @@ public class MainActivity extends FragmentActivity {
 
         if (setting_obj == null) {
             setting_obj = new Setting();
+        }
+
+        if (application_context == null) {
+            application_context = getApplicationContext();
         }
 
         setContentView(com.crolopez.smartfridge.R.layout.activity_main);
@@ -82,5 +88,8 @@ public class MainActivity extends FragmentActivity {
         });
     }
 
+    static Context get_application_context() {
+        return application_context;
+    }
 
 }

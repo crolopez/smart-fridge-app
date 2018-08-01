@@ -1,63 +1,90 @@
 package com.crolopez.smartfridge;
 
+import android.app.Application;
 import android.util.Log;
-
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 
-import static android.content.ContentValues.TAG;
+enum operations {
+    DB_SYNC,
+    UNKNOWN
+};
 
-public class ServerConnect implements Runnable {
+public class ServerConnect extends Application implements Runnable {
     private String TAG = "SERVER_CONNECT";
-    byte[] data;
     private String s_host;
     private int s_port;
-    private boolean hasMessage = false;
-    int dataType = 1;
-    private ByteArrayOutputStream request = null;
-    private byte[] recv_msg = null;
-    private Socket s_socket = null;
     private int s_timeout_ms = 0;
+    private operations op_type = operations.UNKNOWN;
+    private String server_response = null;
+    private String db_name = "products.db";
 
     public ServerConnect(String host, int port, int timeout) {
         s_host = host;
         s_port = port;
         s_timeout_ms = timeout;
+        super.onCreate();
     }
 
     @Override
     public void run() {
-        int bytesRead;
-        InputStream input_stream;
+        Socket socket = get_socket();
+
+        switch(op_type) {
+            case DB_SYNC:
+                send_request(socket, "!#2+");
+                try {
+                    receive_database(socket);
+                } catch (IOException e) {
+                    Log.d(TAG, "Exception: run()-DB_SYNC: 1");
+                    e.printStackTrace();
+                }
+                break;
+            default:
+
+                break;
+        }
+
+        op_type = operations.UNKNOWN;
+        try {
+            socket.close();
+        } catch (IOException e) {
+            Log.d(TAG, "Exception: run(): 0");
+            e.printStackTrace();
+        }
+    }
+
+    public String request_db_sync() {
+        Thread thread;
+        String str = "Sync error.";
+        op_type = operations.DB_SYNC;
+
+        thread = new Thread(this);
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            Log.d(TAG, "Exception: request_db_sync(): 1");
+            e.printStackTrace();
+        }
+
+        return str;
+    }
+
+    private Socket get_socket() {
         InetAddress server_addr;
         long sync_start_time = 0l;
         Socket socket;
-
-        if(s_socket != null) {
-            try {
-                s_socket.close();
-            } catch (IOException e) {
-                Log.d(TAG, "Exception: run(): 0");
-                e.printStackTrace();
-            }
-        }
-
-        s_socket = null;
-
-        if (request == null) {
-            request = new ByteArrayOutputStream(1024);
-        }
-
-        if (recv_msg == null) {
-            recv_msg = new byte[1024];
-        }
 
         try {
             server_addr = InetAddress.getByName(s_host);
@@ -67,22 +94,69 @@ public class ServerConnect implements Runnable {
             Log.d(TAG, "Connection established with the server: " + (System.currentTimeMillis() - sync_start_time) + "ms");
         } catch (UnknownHostException e) {
             Log.d(TAG, "Exception: run(): 1");
-            socket = null;
             e.printStackTrace();
+            return null;
         } catch (IOException e) {
             Log.d(TAG, "Exception: run(): 2");
-            socket = null;
             e.printStackTrace();
+            return null;
+        }
+        return socket;
+    }
+
+    private void send_request(Socket socket, String msg) {
+        PrintWriter server_out;
+
+        try {
+            server_out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+        } catch (IOException e) {
+            Log.d(TAG, "Exception: send_request(): 0");
+            e.printStackTrace();
+            return;
         }
 
-        s_socket = socket;
+        server_out.println(msg);
     }
 
-    public Socket get_socket() {
-        return s_socket;
-    }
+    private void receive_database(Socket socket) throws IOException {
+        InputStream server_in;
+        byte[] buffer = new byte[1024];
+        int readed;
+        File cache_file;
+        FileWriter file_writer;
+        BufferedWriter buffered_writer;
+        FileOutputStream file_output;
+        int header = 0; // Not used yet (TCP)
 
-    public int get_sock_timeout() {
-        return s_timeout_ms;
+        try {
+            server_in = socket.getInputStream();
+        } catch (IOException e) {
+            Log.d(TAG, "Exception: receive_database(): 1");
+            e.printStackTrace();
+            return;
+        }
+
+
+        cache_file = new File(MainActivity.get_application_context().getCacheDir(), db_name);
+        file_output = new FileOutputStream(cache_file);
+
+        // Get header
+        if ((readed = server_in.read(buffer)) != -1) {
+            int msg_position = (new String(buffer)).indexOf("!");
+            Log.d(TAG, "Readed: "+ readed + " MSG_position: " + msg_position);
+            Log.d(TAG, "Header: '" + new String(buffer, 0, msg_position) + "'");
+
+            // Check if the header has part of the file
+            if (msg_position + 1 < readed) {
+                file_output.write(buffer, msg_position + 1, readed - (msg_position + 1));
+            }
+            // Get response
+            while((readed = server_in.read(buffer)) != -1) {
+                file_output.write(buffer, 0, readed);
+
+            }
+        }
+
+        file_output.close();
     }
 }
