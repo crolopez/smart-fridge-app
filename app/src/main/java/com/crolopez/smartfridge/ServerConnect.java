@@ -1,6 +1,7 @@
 package com.crolopez.smartfridge;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,11 +29,16 @@ public class ServerConnect extends Application implements Runnable {
     private operations op_type = operations.UNKNOWN;
     private String server_response = null;
     private String db_name = "products.db";
+    private Context context = null;
 
     public ServerConnect(String host, int port, int timeout) {
         s_host = host;
         s_port = port;
         s_timeout_ms = timeout;
+
+        if (context == null) {
+            MainActivity.get_application_context();
+        }
         super.onCreate();
     }
 
@@ -137,7 +143,7 @@ public class ServerConnect extends Application implements Runnable {
         }
 
 
-        cache_file = new File(MainActivity.get_application_context().getCacheDir(), db_name);
+        cache_file = new File(context.getCacheDir(), db_name);
         file_output = new FileOutputStream(cache_file);
 
         // Get header
