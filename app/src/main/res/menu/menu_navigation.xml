@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:icon="@drawable/icon_home"
+        android:icon="@mipmap/ic_home"
         android:id="@+id/icon_home"
         android:title="@string/text_Home" />
 
     <item
-        android:icon="@drawable/icon_search"
+        android:icon="@mipmap/ic_search"
         android:id="@+id/icon_search"
         android:title="@string/text_Search" />
 
     <item
-        android:icon="@drawable/icon_setting"
+        android:icon="@mipmap/ic_settings"
         android:id="@+id/icon_setting"
         android:title="@string/text_Setting" />
 
     <item
-        android:icon="@drawable/icon_list"
+        android:icon="@mipmap/ic_list"
         android:id="@+id/icon_list"
         android:title="@string/text_List" />
 
     <item
-        android:icon="@drawable/icon_map"
+        android:icon="@mipmap/ic_map"
         android:id="@+id/icon_map"
         android:title="@string/text_Map" />
 </menu>
