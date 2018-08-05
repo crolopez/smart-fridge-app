@@ -55,7 +55,7 @@ public class MainActivity extends FragmentActivity {
                         }
                         newFragment = home_obj;
                         break;
-                    case com.crolopez.smartfridge.R.id.icon_search:
+                    case R.id.icon_inventory:
                         if (search_obj == null) {
                             search_obj = new Search();
                         }

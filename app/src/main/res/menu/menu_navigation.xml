@@ -6,9 +6,9 @@
         android:title="@string/text_Home" />
 
     <item
-        android:icon="@mipmap/ic_search"
-        android:id="@+id/icon_search"
-        android:title="@string/text_Search" />
+        android:icon="@mipmap/ic_inventory"
+        android:id="@+id/icon_inventory"
+        android:title="@string/text_inventory" />
 
     <item
         android:icon="@mipmap/ic_settings"
