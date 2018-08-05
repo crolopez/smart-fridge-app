@@ -8,14 +8,13 @@ import android.support.design.widget.BottomNavigationView;
 import android.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 
 public class MainActivity extends FragmentActivity {
 
     private BottomNavigationView bottomNavigationView;
     private Home home_obj = null;
-    private Search search_obj = null;
+    private Inventory search_obj = null;
     private List list_obj = null;
     private Setting setting_obj = null;
     private Map map_obj = null;
@@ -57,7 +56,7 @@ public class MainActivity extends FragmentActivity {
                         break;
                     case R.id.icon_inventory:
                         if (search_obj == null) {
-                            search_obj = new Search();
+                            search_obj = new Inventory();
                         }
                         newFragment = search_obj;
                         break;

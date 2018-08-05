@@ -20,14 +20,14 @@ import android.widget.TextView;
 import java.io.File;
 import java.sql.SQLInput;
 
-public class Search extends Fragment {
-    private String TAG = "SEARCH";
+public class Inventory extends Fragment {
+    private String TAG = "INVENTORY";
     private View myFragmentView = null;
     private String[] headerText={"Product","Quantity","Date added"};
     private Context context;
     private TableLayout table_layout = null;
     private String database_path = null;
-    private String select_query = null;
+    private String products_data_query = "SELECT * FROM PRODUCTS_DATA;";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,9 +37,6 @@ public class Search extends Fragment {
         myFragmentView = inflater.inflate(com.crolopez.smartfridge.R.layout.activity_search, container, false);
         context = MainActivity.get_application_context();
         database_path = context.getCacheDir().getAbsolutePath() + "/products.db";
-        if (select_query == null) {
-            select_query = "SELECT NAME, QUANTITY, TIMESTAMP FROM PRODUCTS_DATA;";
-        }
 
         // Print table
         set_table();
@@ -51,7 +48,7 @@ public class Search extends Fragment {
         table_layout= (TableLayout) myFragmentView.findViewById(R.id.id_database_layout);
 
         // Set header
-        set_header();
+        //set_header();
 
         // Set content
         set_db_content();
@@ -84,39 +81,17 @@ public class Search extends Fragment {
         SQLiteDatabase db = null;
         ContentValues values;
         TableRow row;
+        InventoryNodes inventory_n;
 
         db = SQLiteDatabase.openDatabase(database_path, null, Context.MODE_PRIVATE);
         db.beginTransaction();
 
         try {
-            Cursor cursor = db.rawQuery(select_query,null);
+            inventory_n = new InventoryNodes(db.rawQuery(products_data_query,null));
 
-            if(cursor.getCount() > 0) {
-                while (cursor.moveToNext()) {
-                    // Get the columns values
-                    String[] colText = {
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2)
-                    };
-
-                    row = new TableRow(context);
-                    row.setLayoutParams(new TableLayout.LayoutParams(
-                            TableLayout.LayoutParams.MATCH_PARENT,
-                            TableLayout.LayoutParams.WRAP_CONTENT)
-                    );
-
-                    for(String text:colText) {
-                        TextView tv = new TextView(context);
-                        tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
-                                TableRow.LayoutParams.WRAP_CONTENT));
-                        tv.setGravity(Gravity.CENTER);
-                        tv.setTextSize(16);
-                        tv.setPadding(5, 5, 5, 5);
-                        tv.setText(text);
-                        row.addView(tv);
-                    }
-                    table_layout.addView(row);
+            if(inventory_n.is_valid()) {
+                while (inventory_n.next_node()) {
+                    table_layout.addView(inventory_n.get_simple_row());
                 }
             }
             db.setTransactionSuccessful();
