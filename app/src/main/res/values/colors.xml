@@ -2,7 +2,8 @@
 <resources>
     <color name="colorPrimary">#9b59b6</color>
     <color name="colorPrimaryDark">#8e44ad</color>
-    <color name="colorAccent">#8e44ad</color>
+    <color name="colorTextDark">#230145 </color>
+    <color name="colorAccent">#a36abb</color>
     <color name="colorFragmentBackground">#ebdef0</color>
     <color name="colorFragmentButton">#ce93d8</color>
     <color name="colorApproves">#30d816</color>
