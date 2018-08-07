@@ -5,8 +5,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,14 +19,18 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+
 public class Inventory extends Fragment {
     private String TAG = "INVENTORY";
     private View myFragmentView = null;
-    private String[] headerText={"Product","Quantity","Date added"};
     private Context context;
     private TableLayout table_layout = null;
     private String database_path = null;
-    private String products_data_query = "SELECT * FROM PRODUCTS_DATA;";
+    private String products_data_query = "SELECT * FROM PRODUCTS_DATA INNER JOIN IMAGES WHERE IMAGES.CODE = PRODUCTS_DATA.CODE;";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

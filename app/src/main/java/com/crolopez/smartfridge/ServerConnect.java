@@ -37,7 +37,7 @@ public class ServerConnect extends Application implements Runnable {
         s_timeout_ms = timeout;
 
         if (context == null) {
-            MainActivity.get_application_context();
+            context = MainActivity.get_application_context();
         }
         super.onCreate();
     }
@@ -89,7 +89,7 @@ public class ServerConnect extends Application implements Runnable {
 
     private Socket get_socket() {
         InetAddress server_addr;
-        long sync_start_time = 0l;
+        long sync_start_time;
         Socket socket;
 
         try {
@@ -129,8 +129,6 @@ public class ServerConnect extends Application implements Runnable {
         byte[] buffer = new byte[1024];
         int readed;
         File cache_file;
-        FileWriter file_writer;
-        BufferedWriter buffered_writer;
         FileOutputStream file_output;
         int header = 0; // Not used yet (TCP)
 
@@ -157,12 +155,12 @@ public class ServerConnect extends Application implements Runnable {
                 file_output.write(buffer, msg_position + 1, readed - (msg_position + 1));
             }
             // Get response
-            while((readed = server_in.read(buffer)) != -1) {
+            while((readed = server_in.read(buffer)) > 0) {
                 file_output.write(buffer, 0, readed);
-
             }
         }
 
         file_output.close();
+        Log.d(TAG, "Database received.");
     }
 }
