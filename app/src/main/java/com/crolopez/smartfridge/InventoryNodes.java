@@ -1,5 +1,6 @@
 package com.crolopez.smartfridge;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -8,10 +9,15 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.Image;
 import android.os.AsyncTask;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -110,54 +116,57 @@ public class InventoryNodes {
 
     public TableRow get_row() {
         TableRow row;
-        TableLayout margin_element;
+        TableLayout left_margin_element;
+        TableLayout right_margin_element;
         TableLayout first_element;
-        TableLayout second_element;
-        ImageView image;
+        ImageView image_element;
+        TableRow.LayoutParams layout_params;
 
         // Create the row
         row = new TableRow(context);
+        //row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, dps_to_pixel(40)));
         row.setWeightSum(100);
 
-        //Init the margin
-        margin_element = new TableLayout(context);
-        margin_element.setLayoutParams(new TableRow.LayoutParams(
-                0,
-                TableLayout.LayoutParams.WRAP_CONTENT,
-                5));
-        //margin_element.setBackgroundColor(0xF00FFF00);
+        //Init the margins
+        left_margin_element = new TableLayout(context);
+        right_margin_element = new TableLayout(context);
+        left_margin_element.setLayoutParams(new TableRow.LayoutParams(0, TableLayout.LayoutParams.WRAP_CONTENT,5));
+        right_margin_element.setLayoutParams(new TableRow.LayoutParams(0, TableLayout.LayoutParams.WRAP_CONTENT,5));
+        left_margin_element.setBackgroundColor(0xF0FFFF00);
+        right_margin_element.setBackgroundColor(0xF0FFFF00);
 
         // Init the first element of the row
         first_element = new TableLayout(context);
-        first_element.setLayoutParams(new TableRow.LayoutParams(
-                0,
-                TableLayout.LayoutParams.WRAP_CONTENT,
-                65));
-        first_element.addView(create_layout_text(get_name(), 1));
-        first_element.addView(create_layout_text(get_elements(), 0));
+        layout_params = new TableRow.LayoutParams(0, TableLayout.LayoutParams.WRAP_CONTENT,70);
+        layout_params.gravity = Gravity.CENTER;
+        first_element.setLayoutParams(layout_params);
+        first_element.addView(create_layout_text(get_name(), null, true, false));
+        first_element.addView(create_layout_text(get_elements(), "Elements: ", false, true));
         //first_element.setBackgroundColor(0xFF00FF00);
 
-        // Init the second element of the row
-        second_element = new TableLayout(context);
-        second_element.setLayoutParams(new TableLayout.LayoutParams(
-                0,
-                TableLayout.LayoutParams.WRAP_CONTENT,
-                30));
-        image = get_imageview(get_code());
-        if (image != null) {
-            image.setAdjustViewBounds(true);
-            image.setMaxHeight(40);
-            image.setMaxWidth(40);
-            second_element.addView(image);
+        image_element = get_imageview(get_code());
+        if (image_element != null) {
+            layout_params = new TableRow.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            layout_params.gravity = Gravity.RIGHT;
+            layout_params.weight = 20;
+            //layout_params.bottomMargin = layout_params.topMargin = layout_params.leftMargin = layout_params.rightMargin = 1;
+            image_element.setLayoutParams(layout_params);
+            image_element.setVisibility(View.VISIBLE);
+            //image_element.setAdjustViewBounds(true);
+
         } else {
-            second_element.addView(create_layout_text("IDK", 0));
+            // Create empty imageview ~~
         }
         //second_element.setBackgroundColor(0xFFF0FF00);
 
         // Add the elements to the row
-        row.addView(margin_element);
+        row.addView(left_margin_element);
         row.addView(first_element);
-        row.addView(second_element);
+        row.addView(image_element);
+        row.addView(right_margin_element);
+
+        //row.addView(margin_element);
+
         //row.setBackgroundColor(0xFF0FFFF0);
 
         return row;
@@ -182,12 +191,19 @@ public class InventoryNodes {
         return return_image;
     }
 
+   private int dps_to_pixel(int dps) {
+        final float conversion_scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dps * conversion_scale + 0.5f);
+   }
+
     private ImageView check_image(String code, String image_tag, boolean return_image) {
         ImageView image = null;
         String image_url;
         String file_base_path = cache_dir + code;
         String full_path;
         String extension = ".png";
+        BitmapFactory.Options opt;
+        Bitmap bitmap;
 
         if (image_tag == "front") {
             image_url = get_front_image();
@@ -205,15 +221,35 @@ public class InventoryNodes {
                 new DownloadImages().execute(image_url, full_path);
             }
             if (return_image) {
+                int height, width;
+                int bounding = dps_to_pixel(250);
+                float xScale, yScale;
+                float scale;
+                //opt = new BitmapFactory.Options();
+                //opt.inMutable = true;
+                //bitmap = BitmapFactory.decodeFile(full_path, opt);
+                bitmap = BitmapFactory.decodeFile(full_path);
+
+                /*
+                height = bitmap.getHeight();
+                width = bitmap.getWidth();
+                xScale = ((float) bounding) / width;
+                yScale = ((float) bounding) / height;
+                scale = (xScale <= yScale) ? xScale : yScale;*/
+/*
+                Matrix matrix = new Matrix();
+                matrix.postScale(scale, scale);
+
+                bitmap.scale*/
                 image = new ImageView(context);
-                image.setImageBitmap(BitmapFactory.decodeFile(full_path));
+                image.setImageBitmap(bitmap);
             }
         }
 
         return image;
     }
 
-    private TextView create_layout_text(String text, int color) {
+    private TextView create_layout_text(String text, String d_tag, boolean header, boolean last) {
         TextView tv;
         TableRow.LayoutParams lp;
 
@@ -225,14 +261,19 @@ public class InventoryNodes {
         tv.setLayoutParams(lp);
         tv.setGravity(Gravity.LEFT);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, text_size_dp);
-        //tv.setTextSize(16);
-        tv.setPaddingRelative(5,5,5,5);
-        tv.setText(text);
-        if (color == 1) {
-            tv.setTextColor(Color.parseColor(context.getResources().getString(0 + R.color.colorTextDark)));
-            tv.setTypeface(null, Typeface.BOLD);
+        if (d_tag == null) {
+            if (header) {
+                tv.setTextColor(Color.parseColor(context.getResources().getString(0 + R.color.colorTextDark)));
+                tv.setTypeface(null, Typeface.BOLD);
+                tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, text_size_dp + 1);
+            }
+            tv.setText(text);
+        } else {
+            Spanned hml_text = Html.fromHtml("<b>" + d_tag + "</b>" + text);
+            tv.setText(hml_text);
         }
 
+        tv.setPaddingRelative(5, (header) ? 50 : 5,5, (last) ? 50 : 5);
         return tv;
     }
 

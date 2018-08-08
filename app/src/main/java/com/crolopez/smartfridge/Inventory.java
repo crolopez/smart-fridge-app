@@ -49,6 +49,7 @@ public class Inventory extends Fragment {
 
     private void set_table() {
         table_layout= (TableLayout) myFragmentView.findViewById(R.id.id_database_layout);
+        table_layout.setStretchAllColumns(true);
 
         // Set header
         set_header();

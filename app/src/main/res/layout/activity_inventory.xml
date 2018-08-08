@@ -7,12 +7,17 @@
     xmlns:tools= "http://schemas.android.com/tools"
     >
 
-    <TableLayout
-        android:id="@+id/id_database_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:stretchColumns="*"
-        tools:layout_width="wrap_content">
-    </TableLayout>
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scrollbars="none">
+        <TableLayout
+            android:id="@+id/id_database_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            tools:layout_width="wrap_content">
+        </TableLayout>
+    </ScrollView>
 
 </RelativeLayout>
