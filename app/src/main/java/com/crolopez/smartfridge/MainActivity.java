@@ -10,11 +10,10 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 public class MainActivity extends FragmentActivity {
-
     private BottomNavigationView bottomNavigationView;
     private Home home_obj = null;
     private Inventory search_obj = null;
-    private List list_obj = null;
+    private ShoppingList list_obj = null;
     private Setting setting_obj = null;
     private Map map_obj = null;
     private static Context application_context = null;
@@ -61,7 +60,7 @@ public class MainActivity extends FragmentActivity {
                         break;
                     case com.crolopez.smartfridge.R.id.icon_list:
                         if (list_obj == null) {
-                            list_obj = new List();
+                            list_obj = new ShoppingList();
                         }
                         newFragment = list_obj;
                         break;

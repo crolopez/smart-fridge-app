@@ -5,12 +5,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,11 +14,6 @@ import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.URL;
 
 public class Inventory extends Fragment {
     private String TAG = "INVENTORY";
@@ -88,13 +79,13 @@ public class Inventory extends Fragment {
         SQLiteDatabase db = null;
         ContentValues values;
         TableRow row;
-        InventoryNodes inventory_n;
+        InventoryNode inventory_n;
 
         db = SQLiteDatabase.openDatabase(database_path, null, Context.MODE_PRIVATE);
         db.beginTransaction();
 
         try {
-            inventory_n = new InventoryNodes(db.rawQuery(products_data_query,null));
+            inventory_n = new InventoryNode(db.rawQuery(products_data_query,null));
             if(inventory_n.is_valid()) {
                 for (int i = 0; inventory_n.next_node(); i++) {
                     row = inventory_n.get_row();

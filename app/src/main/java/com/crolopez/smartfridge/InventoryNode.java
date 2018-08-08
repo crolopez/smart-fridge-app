@@ -28,7 +28,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 
-public class InventoryNodes {
+public class InventoryNode {
     private String TAG = "INV_NODES";
     private boolean is_valid;
     private Cursor cursor = null;
@@ -36,7 +36,7 @@ public class InventoryNodes {
     private String cache_dir;
     private int text_size_dp = 15;
 
-    InventoryNodes(Cursor cursor) {
+    InventoryNode(Cursor cursor) {
         if (cursor.getCount() > 0) {
             is_valid = true;
         } else {
