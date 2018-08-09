@@ -28,6 +28,7 @@ public class ShoppingList extends Fragment {
     private ListAdapter list_adapter;
     private Context context;
     private ImageButton add_buttom;
+    private ImageButton clear_buttom;
     private LayoutInflater inflater;
 
     @Override
@@ -38,11 +39,19 @@ public class ShoppingList extends Fragment {
         myFragmentView = inflater.inflate(com.crolopez.smartfridge.R.layout.activity_list, container, false);
         listview = (ListView) myFragmentView.findViewById(R.id.id_listview);
         add_buttom = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_add);
+        clear_buttom = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_remove);
         add_buttom.setImageResource(R.mipmap.list_icons_add);
+        clear_buttom.setImageResource(R.mipmap.list_icons_remove);
         add_buttom.setOnClickListener(new View.OnClickListener() {
             //@Override
             public void onClick(View v) {
                 show_add_dialog();
+            }
+        });
+        clear_buttom.setOnClickListener(new View.OnClickListener() {
+            //@Override
+            public void onClick(View v) {
+                show_clear_dialog();
             }
         });
 
@@ -96,8 +105,8 @@ public class ShoppingList extends Fragment {
                                 if (name != "") {
                                     list_adapter.add(
                                             new ListNode(name,
-                                                        (!quantity.equals("")) ? Integer.parseInt(quantity) : 1,
-                                                        (!place.equals("")) ? place : "Anywhere"));
+                                                    (!quantity.equals("")) ? Integer.parseInt(quantity) : 1,
+                                                    (!place.equals("")) ? place : "Anywhere"));
                                 }
                             }
                         })
@@ -112,4 +121,33 @@ public class ShoppingList extends Fragment {
         alert_dialog.show();
     }
 
+    private void show_clear_dialog() {
+        View prompts_view;
+        AlertDialog.Builder dialog_builder;
+        AlertDialog alert_dialog;
+
+        Log.d(TAG, "Clear products buttom click.");
+
+        prompts_view = inflater.inflate(R.layout.activity_list_clear_prompt, null);
+        dialog_builder = new AlertDialog.Builder(getActivity());
+        dialog_builder.setView(prompts_view);
+
+        dialog_builder
+                .setCancelable(false)
+                .setPositiveButton("Continue",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                list_adapter.clear();
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        alert_dialog = dialog_builder.create();
+        alert_dialog.show();
+    }
 }

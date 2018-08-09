@@ -26,4 +26,12 @@
         app:srcCompat="@mipmap/list_icons_add"
         android:clickable="true"
         android:focusable="true"/>
+
+    <ImageButton
+        android:id="@+id/id_shoppinglist_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/id_shoppinglist_add"
+        app:srcCompat="@mipmap/list_icons_remove" />
 </RelativeLayout>
