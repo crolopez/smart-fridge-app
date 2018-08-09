@@ -1,13 +1,12 @@
 package com.crolopez.smartfridge;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,7 +24,6 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
     private LayoutInflater inflater;
     private String backup_file;
     private String separator = "-!-";
-
 
     public ListAdapter(Context c, List<ListNode> objects, View f_view, LayoutInflater inf) {
         super(c, 0, objects);
@@ -58,10 +56,17 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
         // Get current node
         current_node = getItem(position);
 
+        // Set background color
+        if (!current_node.is_marked()) {
+            convert_view.setBackgroundColor(Color.parseColor(context.getResources().getString(0 + R.color.colorFragmentBackground)));
+        } else {
+            convert_view.setBackgroundColor(Color.parseColor(context.getResources().getString(0 + R.color.colorGray)));
+        }
+
         // Setup.
         name.setText(current_node.get_name());
         quantity.setText(String.valueOf(current_node.get_quantity()));
-        market.setText(current_node.get_market());
+        market.setText(current_node.get_place());
 
         return convert_view;
     }
@@ -71,7 +76,7 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
         int position;
         ListNode node;
         String name = object.get_name();
-        String market = object.get_market();
+        String market = object.get_place();
         int quantity = object.get_quantity();
 
         // Remove excess space
@@ -82,7 +87,7 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
             node = getItem(position);
 
             // Check if is the same node
-            if (node.get_name().equalsIgnoreCase(name) && node.get_market().equalsIgnoreCase(market)) {
+            if (node.get_name().equalsIgnoreCase(name) && node.get_place().equalsIgnoreCase(market)) {
                 node.set_quantity(quantity + node.get_quantity());
                 notifyDataSetChanged();
                 return;
@@ -90,7 +95,7 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
 
         }
 
-        object.set_market(market);
+        object.set_place(market);
         object.set_name(name);
 
         super.add(object);
@@ -112,14 +117,17 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
         int i;
         String buffer;
         ListNode node;
+        String str_mark;
 
         file_output = new PrintWriter(backup_file);
 
         for (i = 0; i < getCount(); i++) {
             node = getItem(i);
+            str_mark = (node.is_marked()) ? "T" : "N";
             buffer = node.get_name() + separator
                     + node.get_quantity() + separator
-                    + node.get_market() + separator;
+                    + node.get_place() + separator
+                    + str_mark + separator;
             file_output.println(buffer);
         }
 
@@ -128,11 +136,12 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
 
     public void load_state() {
         ArrayList <ListNode> nodes;
-        String name = null;
-        int quantity = 0;
-        String market = null;
+        String name;
+        int quantity;
+        String place;
         String buffer;
         BufferedReader file_input;
+        boolean marked;
         String[] splitted;
 
         if (new File(backup_file).exists()) {
@@ -163,9 +172,10 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
                 splitted = buffer.split(separator);
                 name = splitted[0];
                 quantity = Integer.parseInt(splitted[1]);
-                market = splitted[2];
+                place = splitted[2];
+                marked = (splitted[3].equals("T")) ? true : false;
 
-                nodes.add(new ListNode(name, quantity, market));
+                nodes.add(new ListNode(name, quantity, place, marked));
             }
             addAll(nodes);
         }
@@ -174,7 +184,7 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
     public void modify_element(ListNode node, String name, int quantity, String place) {
         node.set_name(name);
         node.set_quantity(quantity);
-        node.set_market(place);
+        node.set_place(place);
         notifyDataSetChanged();
     }
 }

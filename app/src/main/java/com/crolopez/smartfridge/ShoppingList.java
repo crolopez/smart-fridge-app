@@ -72,6 +72,9 @@ public class ShoppingList extends Fragment {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                ListNode node = list_adapter.getItem(position);
+                node.change_mark();
+                list_adapter.notifyDataSetChanged();
             }
         });
 
@@ -104,7 +107,7 @@ public class ShoppingList extends Fragment {
             positive_button = "Set";
             products_text_input.setText(node.get_name());
             quantity_text_input.setText(Integer.toString(node.get_quantity()));
-            place_text_input.setText(node.get_market());
+            place_text_input.setText(node.get_place());
         }
 
         dialog_builder
@@ -125,7 +128,8 @@ public class ShoppingList extends Fragment {
                                         list_adapter.add(
                                                 new ListNode(name,
                                                             (!quantity.equals("")) ? Integer.parseInt(quantity) : 1,
-                                                            (!place.equals("")) ? place : "Anywhere"));
+                                                            (!place.equals("")) ? place : "Anywhere",
+                                                            false));
                                     } else if (mode == modify_mode) {
                                         list_adapter.modify_element(
                                                             node,
