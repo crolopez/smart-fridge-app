@@ -7,4 +7,5 @@
     <color name="colorFragmentBackground">#ebdef0</color>
     <color name="colorFragmentButton">#ce93d8</color>
     <color name="colorApproves">#30d816</color>
+    <color name="colorDivider">#cfced3</color>
 </resources>
