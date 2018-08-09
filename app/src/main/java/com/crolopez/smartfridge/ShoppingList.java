@@ -55,19 +55,11 @@ public class ShoppingList extends Fragment {
             }
         });
 
-
-        // ~~~~~~~~~~
+        // Init the list
         ArrayList<ListNode> list = new ArrayList<ListNode>();
-        list.add(new ListNode("Product 1",5,"Dia"));
-        list.add(new ListNode("Product 2",6,"Dia"));
-        list.add(new ListNode("Product 3",7,"Alcampo"));
-        list.add(new ListNode("Product 4",8,"Dia"));
-
         list_adapter = new ListAdapter(context, list, myFragmentView, inflater);
+        list_adapter.load_state();
         listview.setAdapter(list_adapter);
-
-        // ~~~~~~~~~
-
 
         return myFragmentView;
     }
