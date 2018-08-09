@@ -9,7 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -19,12 +19,13 @@ public class ShoppingList extends Fragment {
     private String TAG = "SHOPPING_LIST";
     private ListView listview;
     private View myFragmentView = null;
-    private ArrayAdapter<String> array_adapter;
     private ListAdapter list_adapter;
     private Context context;
     private ImageButton add_buttom;
     private ImageButton clear_buttom;
     private LayoutInflater inflater;
+    private int add_mode = 0;
+    private int modify_mode = 1;
 
     @Override
     public View onCreateView(LayoutInflater inf, ViewGroup container,
@@ -40,7 +41,7 @@ public class ShoppingList extends Fragment {
         add_buttom.setOnClickListener(new View.OnClickListener() {
             //@Override
             public void onClick(View v) {
-                show_add_dialog();
+                show_modify_dialog(add_mode, null);
             }
         });
         clear_buttom.setOnClickListener(new View.OnClickListener() {
@@ -56,18 +57,35 @@ public class ShoppingList extends Fragment {
         list_adapter.load_state();
         listview.setAdapter(list_adapter);
 
+        // On pressed click
+        listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+                ListNode node = list_adapter.getItem(position);
+                Log.d(TAG, "Simple long click on: " + node.get_name());
+                show_modify_dialog(modify_mode, node);
+                return true;
+            }
+        });
+
+        // On click
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+            }
+        });
+
         return myFragmentView;
     }
 
-    private void show_add_dialog() {
+    private void show_modify_dialog(final int mode, final ListNode node) {
         View prompts_view;
         AlertDialog.Builder dialog_builder;
         AlertDialog alert_dialog;
         final EditText products_text_input;
         final EditText quantity_text_input;
         final EditText place_text_input;
-
-        Log.d(TAG, "Add products buttom click.");
+        String positive_button = null;
 
         prompts_view = inflater.inflate(R.layout.activity_list_add_prompt, null);
         dialog_builder = new AlertDialog.Builder(getActivity());
@@ -77,9 +95,21 @@ public class ShoppingList extends Fragment {
         quantity_text_input = (EditText) prompts_view.findViewById(R.id.id_list_add_quantity_value);
         place_text_input = (EditText) prompts_view.findViewById(R.id.id_list_add_place_value);
 
+        // Check the dialog mode
+        if (mode == add_mode) {
+            Log.d(TAG, "Add products button click.");
+            positive_button = "Add";
+        } else if (mode == modify_mode) {
+            Log.d(TAG, "Showing modifier mode.");
+            positive_button = "Set";
+            products_text_input.setText(node.get_name());
+            quantity_text_input.setText(Integer.toString(node.get_quantity()));
+            place_text_input.setText(node.get_market());
+        }
+
         dialog_builder
                 .setCancelable(false)
-                .setPositiveButton("Add",
+                .setPositiveButton(positive_button,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 String name = products_text_input.getText().toString();
@@ -87,13 +117,22 @@ public class ShoppingList extends Fragment {
                                 String quantity = quantity_text_input.getText().toString();
 
                                 Log.d(TAG, "Input dialog - Product: '" + name +
-                                        "' - Quantity: '" + quantity + "'.");
+                                        "' - Quantity: '" + quantity +
+                                        "' - Place: '" + place + "'.");
 
                                 if (name != "") {
-                                    list_adapter.add(
-                                            new ListNode(name,
-                                                    (!quantity.equals("")) ? Integer.parseInt(quantity) : 1,
-                                                    (!place.equals("")) ? place : "Anywhere"));
+                                    if (mode == add_mode) {
+                                        list_adapter.add(
+                                                new ListNode(name,
+                                                            (!quantity.equals("")) ? Integer.parseInt(quantity) : 1,
+                                                            (!place.equals("")) ? place : "Anywhere"));
+                                    } else if (mode == modify_mode) {
+                                        list_adapter.modify_element(
+                                                            node,
+                                                            name,
+                                                            (!quantity.equals("")) ? Integer.parseInt(quantity) : 1,
+                                                            (!place.equals("")) ? place : "Anywhere");
+                                    }
                                 }
                             }
                         })
@@ -103,6 +142,12 @@ public class ShoppingList extends Fragment {
                                 dialog.cancel();
                             }
                         });
+
+        if (mode == add_mode) {
+            dialog_builder.setTitle("Add product");
+        } else if (mode == modify_mode) {
+            dialog_builder.setTitle("Modify the product");
+        }
 
         alert_dialog = dialog_builder.create();
         alert_dialog.show();

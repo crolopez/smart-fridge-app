@@ -6,13 +6,6 @@
     android:orientation="vertical"
     android:padding="10dp" >
 
-    <TextView
-        android:id="@+id/id_list_add_tittle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add product"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
     <EditText
         android:id="@+id/id_list_add_name_value"
         android:layout_width="match_parent"

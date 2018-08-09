@@ -54,21 +54,13 @@
             android:textStyle="bold"
             android:text="Place: " />
 
-    <TextView
-        android:id="@+id/id_node_market_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/id_node_quantity"
-        android:layout_toEndOf="@+id/id_node_market"
-        android:text="Anywhere" />
+        <TextView
+            android:id="@+id/id_node_market_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/id_node_quantity"
+            android:layout_toEndOf="@+id/id_node_market"
+            android:text="Anywhere" />
 
-        <ImageView
-            android:id="@+id/id_node_edit"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="11dp"
-            app:srcCompat="@mipmap/list_icons_edit" />
     </RelativeLayout>
 

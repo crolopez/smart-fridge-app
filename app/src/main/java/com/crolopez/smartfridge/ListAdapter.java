@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import java.io.BufferedReader;
@@ -39,7 +40,6 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
         TextView name;
         TextView quantity;
         TextView market;
-        ImageView edit;
         ListNode current_node;
 
         // Check if the currently view exists
@@ -54,13 +54,11 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
         name = (TextView) convert_view.findViewById(R.id.id_node_name);
         quantity = (TextView) convert_view.findViewById(R.id.id_node_quantity_value);
         market = (TextView) convert_view.findViewById(R.id.id_node_market_value);
-        edit = (ImageView) convert_view.findViewById(R.id.id_node_edit);
 
         // Get current node
         current_node = getItem(position);
 
         // Setup.
-        edit.setImageResource(R.mipmap.list_icons_edit);
         name.setText(current_node.get_name());
         quantity.setText(String.valueOf(current_node.get_quantity()));
         market.setText(current_node.get_market());
@@ -84,7 +82,7 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
             node = getItem(position);
 
             // Check if is the same node
-            if (node.get_name().equals(name) && node.get_market().equals(market)) {
+            if (node.get_name().equalsIgnoreCase(name) && node.get_market().equalsIgnoreCase(market)) {
                 node.set_quantity(quantity + node.get_quantity());
                 notifyDataSetChanged();
                 return;
@@ -171,6 +169,13 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
             }
             addAll(nodes);
         }
+    }
+
+    public void modify_element(ListNode node, String name, int quantity, String place) {
+        node.set_name(name);
+        node.set_quantity(quantity);
+        node.set_market(place);
+        notifyDataSetChanged();
     }
 }
 
