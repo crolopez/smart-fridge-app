@@ -24,6 +24,4 @@
         android:layout_alignParentBottom="true"
         design:menu="@menu/menu_navigation" />
 
-
-
 </RelativeLayout>

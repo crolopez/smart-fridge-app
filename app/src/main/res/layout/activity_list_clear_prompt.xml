@@ -12,4 +12,5 @@
         android:layout_height="wrap_content"
         android:text="Are you sure you want to clear the list?"
         android:textAppearance="?android:attr/textAppearanceLarge" />
+
 </LinearLayout>

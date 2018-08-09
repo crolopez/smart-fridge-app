@@ -87,7 +87,7 @@ public class ShoppingList extends Fragment {
         final EditText place_text_input;
         String positive_button = null;
 
-        prompts_view = inflater.inflate(R.layout.activity_list_add_prompt, null);
+        prompts_view = inflater.inflate(R.layout.activity_list_modify_add_prompt, null);
         dialog_builder = new AlertDialog.Builder(getActivity());
         dialog_builder.setView(prompts_view);
 
@@ -136,7 +136,7 @@ public class ShoppingList extends Fragment {
                                 }
                             }
                         })
-                .setNegativeButton("Cancel",
+                .setNeutralButton("Cancel",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 dialog.cancel();
@@ -146,7 +146,13 @@ public class ShoppingList extends Fragment {
         if (mode == add_mode) {
             dialog_builder.setTitle("Add product");
         } else if (mode == modify_mode) {
-            dialog_builder.setTitle("Modify the product");
+            dialog_builder.setTitle("Modify the product")
+                            .setNegativeButton("Remove",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,int id) {
+                                    list_adapter.remove(node);
+                                }
+                            });
         }
 
         alert_dialog = dialog_builder.create();
