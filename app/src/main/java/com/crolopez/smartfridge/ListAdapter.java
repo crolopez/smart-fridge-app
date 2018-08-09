@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ListAdapter extends ArrayAdapter<ListNode> {
     private Context context;
-    private View myFragmentView = null;
+    private View myFragmentView;
     private LayoutInflater inflater;
     public ListAdapter(Context c, List<ListNode> objects, View f_view, LayoutInflater inf) {
         super(c, 0, objects);
@@ -52,6 +52,36 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
         market.setText(current_node.get_market());
 
         return convert_view;
+    }
+
+    @Override
+    public void add(ListNode object) {
+        int position;
+        ListNode node;
+        String name = object.get_name();
+        String market = object.get_market();
+        int quantity = object.get_quantity();
+
+        // Remove excess space
+        name = name.replaceAll("^\\s+|\\s+$", "");
+        market = market.replaceAll("^\\s+|\\s+$", "");
+
+        for (position = 0; position < getCount(); position++) {
+            node = getItem(position);
+
+            // Check if is the same node
+            if (node.get_name().equals(name) && node.get_market().equals(market)) {
+                node.set_quantity(quantity + node.get_quantity());
+                notifyDataSetChanged();
+                return;
+            }
+
+        }
+
+        object.set_market(market);
+        object.set_name(name);
+
+        super.add(object);
     }
 }
 

@@ -14,4 +14,7 @@ public class ListNode {
     public String get_name() { return name; }
     public int get_quantity() { return quantity; }
     public String get_market() { return market; }
+    public void set_quantity(int q) { quantity = q; }
+    public void set_name(String s) { name = s; }
+    public void set_market(String s) { market = s; }
 }
