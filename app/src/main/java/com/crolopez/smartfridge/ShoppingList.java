@@ -54,7 +54,7 @@ public class ShoppingList extends Fragment {
         // Init the list
         ArrayList<ListNode> list = new ArrayList<ListNode>();
         list_adapter = new ListAdapter(context, list, myFragmentView, inflater);
-        list_adapter.load_state();
+        list_adapter.load_states();
         listview.setAdapter(list_adapter);
 
         // On pressed click
@@ -106,7 +106,7 @@ public class ShoppingList extends Fragment {
             Log.d(TAG, "Showing modifier mode.");
             positive_button = "Set";
             products_text_input.setText(node.get_name());
-            quantity_text_input.setText(Integer.toString(node.get_quantity()));
+            quantity_text_input.setText(Integer.toString(node.get_elements()));
             place_text_input.setText(node.get_place());
         }
 
@@ -128,14 +128,16 @@ public class ShoppingList extends Fragment {
                                         list_adapter.add(
                                                 new ListNode(name,
                                                             (!quantity.equals("")) ? Integer.parseInt(quantity) : 1,
-                                                            (!place.equals("")) ? place : "Anywhere",
+                                                            place,
+                                                            null,
+                                                            null,
                                                             false));
                                     } else if (mode == modify_mode) {
                                         list_adapter.modify_element(
                                                             node,
                                                             name,
                                                             (!quantity.equals("")) ? Integer.parseInt(quantity) : 1,
-                                                            (!place.equals("")) ? place : "Anywhere");
+                                                            place);
                                     }
                                 }
                             }

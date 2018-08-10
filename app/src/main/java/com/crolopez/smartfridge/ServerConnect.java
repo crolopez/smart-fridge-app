@@ -45,6 +45,10 @@ public class ServerConnect extends Application implements Runnable {
     public void run() {
         Socket socket = get_socket();
 
+        if (socket == null) {
+            return;
+        }
+
         switch(op_type) {
             case DB_SYNC:
                 send_request(socket, "!#2+");
@@ -140,7 +144,7 @@ public class ServerConnect extends Application implements Runnable {
         }
 
 
-        cache_file = new File(context.getCacheDir(), db_name);
+        cache_file = new File(MainActivity.get_application_cache_dir(), db_name);
         file_output = new FileOutputStream(cache_file);
 
         // Get header

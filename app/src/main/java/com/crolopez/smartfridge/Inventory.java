@@ -15,6 +15,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.io.File;
+
 public class Inventory extends Fragment {
     private String TAG = "INVENTORY";
     private View myFragmentView = null;
@@ -22,6 +24,7 @@ public class Inventory extends Fragment {
     private TableLayout table_layout = null;
     private String database_path = null;
     private String products_data_query = "SELECT * FROM PRODUCTS_DATA INNER JOIN IMAGES WHERE IMAGES.CODE = PRODUCTS_DATA.CODE;";
+    private LayoutInflater inflater;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,7 +33,8 @@ public class Inventory extends Fragment {
         // Init values
         myFragmentView = inflater.inflate(com.crolopez.smartfridge.R.layout.activity_inventory, container, false);
         context = MainActivity.get_application_context();
-        database_path = context.getCacheDir().getAbsolutePath() + "/products.db";
+        database_path = MainActivity.get_application_cache_dir() + "products.db";
+        this.inflater = inflater;
 
         // Print table
         set_table();
@@ -79,17 +83,21 @@ public class Inventory extends Fragment {
         SQLiteDatabase db = null;
         ContentValues values;
         TableRow row;
-        InventoryNode inventory_n;
+        DatabaseDisplayer inventory_n;
+
+        if (!(new File(database_path).exists())) {
+            return;
+        }
 
         db = SQLiteDatabase.openDatabase(database_path, null, Context.MODE_PRIVATE);
         db.beginTransaction();
 
         try {
-            inventory_n = new InventoryNode(db.rawQuery(products_data_query,null));
+            inventory_n = new DatabaseDisplayer(db.rawQuery(products_data_query,null));
             if(inventory_n.is_valid()) {
-                for (int i = 0; inventory_n.next_node(); i++) {
-                    row = inventory_n.get_row();
-                    if (i % 2 == 1) {
+                for (int position = 0; position < inventory_n.get_count(); position++) {
+                    row = inventory_n.get_row(position);
+                    if (position % 2 == 1) {
                         row.setBackgroundColor(Color.parseColor(context.getResources().getString(0 + R.color.colorAccent)));
                     }
                     table_layout.addView(row);

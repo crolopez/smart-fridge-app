@@ -11,12 +11,12 @@
         android:paddingLeft="@dimen/horizontal_margin"
         android:paddingRight="@dimen/vertical_margin">
 
-        <ImageView
-            android:id="@+id/id_node_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:visibility="invisible"/>
+    <ImageView
+        android:id="@+id/id_node_image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"/>
 
     <TextView
         android:id="@+id/id_node_name"
@@ -28,38 +28,38 @@
         android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/id_node_quantity"
+            android:id="@+id/id_node_elements"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/id_node_name"
             android:layout_below="@+id/id_node_name"
-            android:text="Quantity: "
+            android:text="Elements: "
             android:layout_centerVertical="true"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/id_node_quantity_value"
+            android:id="@+id/id_node_elements_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/id_node_quantity"
+            android:layout_toEndOf="@+id/id_node_elements"
             android:text="0" />
 
         <TextView
-            android:id="@+id/id_node_market"
+            android:id="@+id/id_node_place"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/id_node_quantity"
-            android:layout_below="@+id/id_node_quantity"
+            android:layout_alignLeft="@+id/id_node_elements"
+            android:layout_below="@+id/id_node_elements"
             android:textStyle="bold"
             android:text="Place: " />
 
         <TextView
-            android:id="@+id/id_node_market_value"
+            android:id="@+id/id_node_place_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/id_node_quantity"
-            android:layout_toEndOf="@+id/id_node_market"
+            android:layout_below="@+id/id_node_elements"
+            android:layout_toEndOf="@+id/id_node_place"
             android:text="Anywhere" />
 
     </RelativeLayout>

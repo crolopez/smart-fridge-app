@@ -16,6 +16,7 @@ public class MainActivity extends FragmentActivity {
     private Setting setting_obj = null;
     private Map map_obj = null;
     private static Context application_context = null;
+    private static String application_cache_dir = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,10 @@ public class MainActivity extends FragmentActivity {
 
         if (application_context == null) {
             application_context = getApplicationContext();
+        }
+
+        if (application_cache_dir == null) {
+            application_cache_dir = application_context.getCacheDir().getAbsolutePath() + "/";
         }
 
         setContentView(com.crolopez.smartfridge.R.layout.activity_main);
@@ -86,6 +91,9 @@ public class MainActivity extends FragmentActivity {
 
     static Context get_application_context() {
         return application_context;
+    }
+    static String get_application_cache_dir() {
+        return application_cache_dir;
     }
 
 }

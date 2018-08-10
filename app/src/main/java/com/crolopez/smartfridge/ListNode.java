@@ -1,24 +1,21 @@
 package com.crolopez.smartfridge;
 
-public class ListNode {
-    private String name;
-    private int quantity;
+public class ListNode extends Product{
+    private boolean mark;
     private String place;
-    boolean mark;
+    private static String default_place = "Anywhere";
 
-    ListNode(String n, int q, String p, boolean m) {
-        name = n;
-        quantity = q;
-        place = p;
-        mark = m;
+    ListNode(String name, int elements, String place, String code, String image_front, boolean mark) {
+        super(code, name, 0, elements, null,
+                null, null, null, image_front,
+                null, null);
+        this.mark = mark;
+        this.place = (place == null || place.equals("")) ? default_place : place;
     }
 
-    public String get_name() { return name; }
-    public int get_quantity() { return quantity; }
-    public String get_place() { return place; }
-    public void set_quantity(int q) { quantity = q; }
-    public void set_name(String s) { name = s; }
-    public void set_place(String s) { place = s; }
     public void change_mark() { mark = !mark; }
     public boolean is_marked() { return mark; }
+    public String get_place() { return place; }
+    public static String get_default_place() { return default_place; }
+    public void set_place(String s) { place = s;}
 }
