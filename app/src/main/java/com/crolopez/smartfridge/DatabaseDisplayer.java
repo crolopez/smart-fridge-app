@@ -2,29 +2,19 @@ package com.crolopez.smartfridge;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class DatabaseDisplayer {
@@ -177,16 +167,12 @@ public class DatabaseDisplayer {
             @Override
             public boolean onLongClick(View v) {
                 Product pr;
-                Toast toast_msg;
 
                 pr = products.get(v.getId());
                 Log.d(TAG, "Press on '" + pr.get_name() + "'.");
                 ListAdapter.save_pending_state(pr, context);
 
-
-                toast_msg = Toast.makeText(context, pr.get_name() + " added to the shopping list.", Toast.LENGTH_SHORT);
-                toast_msg.setGravity(Gravity.CENTER, 0, 0);
-                toast_msg.show();
+                ToastMsg.show_toast_msg(context,pr.get_name() + " added to the shopping list");
 
                 return true;
             }

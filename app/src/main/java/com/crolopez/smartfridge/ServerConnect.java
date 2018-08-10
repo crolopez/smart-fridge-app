@@ -29,6 +29,7 @@ public class ServerConnect extends Application implements Runnable {
     private String server_response = null;
     private String db_name = "products.db";
     private Context context = null;
+    private boolean result = false;
 
     public ServerConnect(String host, int port, int timeout) {
         s_host = host;
@@ -44,6 +45,7 @@ public class ServerConnect extends Application implements Runnable {
     @Override
     public void run() {
         Socket socket = get_socket();
+        result = false;
 
         if (socket == null) {
             return;
@@ -54,6 +56,7 @@ public class ServerConnect extends Application implements Runnable {
                 send_request(socket, "!#2+");
                 try {
                     receive_database(socket);
+                    result = true;
                 } catch (IOException e) {
                     Log.d(TAG, "Exception: run()-DB_SYNC: 1");
                     e.printStackTrace();
@@ -70,24 +73,28 @@ public class ServerConnect extends Application implements Runnable {
         } catch (IOException e) {
             Log.d(TAG, "Exception: run(): 0");
             e.printStackTrace();
+            result = false;
         }
     }
 
-    public String request_db_sync() {
+    public boolean get_runnable_result() { return result; }
+
+    public boolean request_db_sync() {
         Thread thread;
-        String str = "Sync error.";
+        boolean retval = false;
         op_type = operations.DB_SYNC;
 
         thread = new Thread(this);
         thread.start();
         try {
             thread.join();
+            retval = true;
         } catch (InterruptedException e) {
             Log.d(TAG, "Exception: request_db_sync(): 1");
             e.printStackTrace();
         }
 
-        return str;
+        return retval;
     }
 
     private Socket get_socket() {

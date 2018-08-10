@@ -7,5 +7,6 @@
     <color name="colorFragmentBackground">#ebdef0</color>
     <color name="colorFragmentButton">#ce93d8</color>
     <color name="colorApproves">#30d816</color>
+    <color name="colorNegative">#b70f0f</color>
     <color name="colorGray">#cfced3</color>
 </resources>
