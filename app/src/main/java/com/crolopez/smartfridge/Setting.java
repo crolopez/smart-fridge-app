@@ -6,12 +6,15 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
 public class Setting extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
-
-    private static final String PREF_H = "host", PREF_POR="port",
-            PREF_INMA="inactivityMax", PREF_APWT="appWaitTime",
-            PREF_LS="lightSignal", PREF_CDR="countdownReset";
-
     private static SharedPreferences preferences = null;
+    private static final String PREF_H = "key_host";
+    private static Preference p_host;
+    private static final String PREF_POR="key_port";
+    private static Preference p_port;
+    private static final String PREF_DEF_PLACE = "key_default_place";
+    private static Preference p_place;
+    private static final String PREF_ZOOM = "key_zoom";
+    private static Preference p_zoom;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,51 +29,40 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Preference pref = findPreference(key);
-        if(key.equals(PREF_CDR) || key.equals(PREF_LS)  ) {
-            //pref.setSummary((preferences.getBoolean(key, false)) ? "true" : "false");
-        }
-        else
-            pref.setSummary(sharedPreferences.getString(key,"null"));
+
+        pref.setSummary(sharedPreferences.getString(key,"null"));
     }
 
     private void initValues(){
         preferences = getPreferenceManager().getSharedPreferences();
-        findPreference(PREF_H).setSummary(preferences.getString(PREF_H, null));
-        findPreference(PREF_POR).setSummary(preferences.getString(PREF_POR, null));
-        findPreference(PREF_APWT).setSummary(preferences.getString(PREF_APWT, null));
-        findPreference(PREF_INMA).setSummary(preferences.getString(PREF_INMA, null));
+
+        // Init references
+        p_host = findPreference(PREF_H);
+        p_port = findPreference(PREF_POR);
+        p_place = findPreference(PREF_DEF_PLACE);
+        p_zoom = findPreference(PREF_ZOOM);
+
+        // Init summaries
+        p_host.setSummary(preferences.getString(PREF_H, null));
+        p_port.setSummary(preferences.getString(PREF_POR, null));
+        p_place.setSummary(preferences.getString(PREF_DEF_PLACE, null));
+        p_zoom.setSummary(preferences.getString(PREF_ZOOM, null));
     }
 
     public static String getServerHost(){
-        return preferences.getString(PREF_H, null);
+        return (String) p_host.getSummary();
     }
-
-    public static int getServerPort(){
-        return Integer.parseInt(preferences.getString(PREF_POR, null));
+    public static int getServerPort() { return Integer.parseInt(p_port.getSummary().toString()); }
+    public static String getDefaultPlace(){
+        return (String) p_place.getSummary();
     }
-
-    public static String getInactivityMax(){
-        return preferences.getString(PREF_INMA, null);
-    }
-
-    public static String getAppWait(){
-        return preferences.getString(PREF_APWT, null);
-    }
-
-    public static boolean getCountdownReset(){
-        return preferences.getBoolean(PREF_CDR, false);
-    }
-
-    public static boolean getLightSignal() {
-        return preferences.getBoolean(PREF_LS, false);
-    }
+    public static int getDefaultZoom() { return Integer.parseInt(p_zoom.getSummary().toString()); }
 
     @Override
     public void onResume() {
         super.onResume();
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
-
     }
 
     @Override

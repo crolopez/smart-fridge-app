@@ -29,4 +29,5 @@ dependencies {
     api 'com.android.support:design:25.0.0'
     api 'com.android.support:preference-v7:23.0.1'
     testImplementation 'junit:junit:4.12'
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
 }

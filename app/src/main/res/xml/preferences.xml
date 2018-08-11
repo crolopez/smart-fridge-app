@@ -4,49 +4,33 @@
 
     <PreferenceCategory
         android:title="@string/text_Setting_Connection_Tittle">
-
         <EditTextPreference
-            android:key="host"
+            android:key="key_host"
             android:title="@string/text_Setting_Connection_Host"
             android:defaultValue="0.0.0.0"
             android:dialogTitle="@string/text_Setting_Connection_Host2"/>
-
         <EditTextPreference
-            android:key="port"
+            android:key="key_port"
             android:title="@string/text_Setting_Connection_Port"
             android:defaultValue="5600"
+            android:numeric="decimal"
             android:dialogTitle="@string/text_Setting_Connection_Port2"/>
-
     </PreferenceCategory>
 
 
     <PreferenceCategory
-        android:title="@string/text_Setting_Serverconfig_Tittle">
-
+        android:title="Map">
         <EditTextPreference
-            android:key="inactivityMax"
-            android:title="@string/text_Setting_Serverconfig_inactivityMax"
-            android:defaultValue="60"
-            android:dialogTitle="@string/text_Setting_Serverconfig_inactivityMax2"/>
-
+            android:key="key_default_place"
+            android:title="Initial location"
+            android:defaultValue="Granada"
+            android:dialogTitle="Enter the location where the center of the map will be located."/>
         <EditTextPreference
-            android:key="appWaitTime"
-            android:title="@string/text_Setting_Serverconfig_appWaitTime"
-            android:defaultValue="60"
-            android:dialogTitle="@string/text_Setting_Serverconfig_appWaitTime2"/>
-
-        <SwitchPreference
-            android:key="lightSignal"
-            android:title="@string/text_Setting_Serverconfig_lightSignal"
-            android:summary="@string/text_Setting_Serverconfig_lightSignal2"
-            android:defaultValue="true"/>
-
-        <SwitchPreference
-           android:key="countdownReset"
-           android:title="@string/text_Setting_Serverconfig_countdownReset"
-           android:summary="@string/text_Setting_Serverconfig_countdownReset2"
-           android:defaultValue="false" />
-
+            android:key="key_zoom"
+            android:title="Map zoom"
+            android:defaultValue="12"
+            android:numeric="decimal"
+            android:dialogTitle="Enter the default map zoom."/>
     </PreferenceCategory>
 
 </PreferenceScreen>
