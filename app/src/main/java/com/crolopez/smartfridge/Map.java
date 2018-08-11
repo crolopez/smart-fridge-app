@@ -17,7 +17,11 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Locale;
 
@@ -27,6 +31,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
     private GoogleMap map;
     private Context context;
     private LatLng map_lat = null;
+    private static final String URL_API = "http://maps.googleapis.com/maps/api/geocode/xml";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,6 +49,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         location = Setting.getDefaultPlace();
         if (!set_map_lat(location)) {
             Log.d(TAG, "The location '" + location + "'could not be set.");
+            ToastMsg.show_toast_msg(context, "Could not find '" + location + "'.");
         }
 
         return myFragmentView;
@@ -55,13 +61,14 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
         try {
             addresses = geocoder.getFromLocationName(place, 1);
+            if (addresses.size() > 0) {
+                return addresses.get(0);
+            }
         } catch (IOException e) {
             Log.d(TAG, "Exception: get_place_address(): 1");
             e.printStackTrace();
-            return null;
         }
-
-        return addresses.get(0);
+        return null;
     }
 
     private boolean set_map_lat(String place) {
