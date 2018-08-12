@@ -17,7 +17,6 @@
             android:dialogTitle="@string/text_Setting_Connection_Port2"/>
     </PreferenceCategory>
 
-
     <PreferenceCategory
         android:title="Map">
         <EditTextPreference
@@ -31,6 +30,11 @@
             android:defaultValue="12"
             android:numeric="decimal"
             android:dialogTitle="Enter the default map zoom."/>
+
+        <SwitchPreference
+            android:key="key_geolocation"
+            android:title="Enable geolocation"
+            android:saveEnabled="false"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

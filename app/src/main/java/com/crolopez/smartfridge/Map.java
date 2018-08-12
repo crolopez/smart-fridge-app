@@ -1,14 +1,19 @@
 package com.crolopez.smartfridge;
 
+import android.Manifest;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -102,6 +107,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         super.onPause();
         map_view.onPause();
     }
+
     @Override
     public void onDestroy() {
         Log.d(TAG, "Entering on onDestroy().");
@@ -112,8 +118,10 @@ public class Map extends Fragment implements OnMapReadyCallback {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "Entering on onSaveInstanceState().");
-        super.onSaveInstanceState(outState); map_view.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
+        map_view.onSaveInstanceState(outState);
     }
+
     @Override
     public void onLowMemory() {
         Log.d(TAG, "Entering on onLowMemory().");
@@ -141,6 +149,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         super.onResume();
         map_view.onResume();
     }
+
     @Override
     public void onDestroyView() {
         Log.d(TAG, "Entering on onDestroyView().");
@@ -157,6 +166,20 @@ public class Map extends Fragment implements OnMapReadyCallback {
         map = googleMap;
         map.setMinZoomPreference(Setting.getDefaultZoom());
         map.moveCamera(CameraUpdateFactory.newLatLng(map_lat));
+
+        if (Setting.getGeolocation()) {
+            if (!set_permissions()) {
+                return;
+            }
+        }
+    }
+
+    private boolean set_permissions() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+        map.setMyLocationEnabled(true);
+        return true;
     }
 
 }

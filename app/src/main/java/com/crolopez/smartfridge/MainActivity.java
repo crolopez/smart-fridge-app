@@ -1,14 +1,19 @@
 package com.crolopez.smartfridge;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.app.Fragment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 public class MainActivity extends FragmentActivity {
+    private static String TAG = "MAIN";
     private BottomNavigationView bottomNavigationView;
     private Home home_obj = null;
     private Inventory search_obj = null;
@@ -17,10 +22,16 @@ public class MainActivity extends FragmentActivity {
     private Map map_obj = null;
     private static Context application_context = null;
     private static String application_cache_dir = null;
+    private static Activity activity = null;
+    private static final int REQUEST_READ_FINE_LOCATION = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (activity == null) {
+            activity = this;
+        }
 
         if (home_obj == null) {
             home_obj = new Home();
@@ -94,6 +105,27 @@ public class MainActivity extends FragmentActivity {
     }
     static String get_application_cache_dir() {
         return application_cache_dir;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        if (requestCode == REQUEST_READ_FINE_LOCATION && grantResults[0] < 0) {
+            Setting.setGeolocation();
+            ToastMsg.show_toast_msg(MainActivity.get_application_context(),
+                    "You need to scale permissions to activate geolocation");
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public static void ask_permissions() {
+        Log.d(TAG, "Entering on ask_permissions().");
+        ActivityCompat.requestPermissions(
+                activity,
+                new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                REQUEST_READ_FINE_LOCATION
+        );
     }
 
 }

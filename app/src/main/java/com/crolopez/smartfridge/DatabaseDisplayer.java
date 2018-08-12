@@ -119,7 +119,9 @@ public class DatabaseDisplayer {
         // Add the elements to the row
         row.addView(left_margin_element);
         row.addView(first_element);
-        row.addView(image_element);
+        if (image_element != null) {
+            row.addView(image_element);
+        }
         row.addView(right_margin_element);
 
         return row;
