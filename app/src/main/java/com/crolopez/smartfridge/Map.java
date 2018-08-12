@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONObject;
@@ -32,23 +34,32 @@ import java.util.Locale;
 
 public class Map extends Fragment implements OnMapReadyCallback {
     private String TAG = "MAP";
+    private View myFragmentView;
     private MapView map_view;
     private GoogleMap map;
     private Context context;
     private LatLng map_lat = null;
     private static final String URL_API = "http://maps.googleapis.com/maps/api/geocode/xml";
+    private ImageButton button_zoom_more;
+    private ImageButton button_zoom_less;
+    private float zoom;
+    private float zoom_inc;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         String location;
-        View myFragmentView = inflater.inflate(R.layout.activity_map, container, false);
+        myFragmentView = inflater.inflate(R.layout.activity_map, container, false);
 
+        zoom = Setting.getDefaultZoom();
+        zoom_inc = Setting.getDefaultZoomInc();
         context = MainActivity.get_application_context();
         MapsInitializer.initialize(this.getActivity());
         map_view = (MapView) myFragmentView.findViewById(R.id.id_mapview);
         map_view.onCreate(savedInstanceState);
         map_view.getMapAsync(this);
+
+        init_buttons();
 
         // Get the initial location
         location = Setting.getDefaultPlace();
@@ -58,6 +69,45 @@ public class Map extends Fragment implements OnMapReadyCallback {
         }
 
         return myFragmentView;
+    }
+
+        private void init_buttons() {
+        button_zoom_more = (ImageButton) myFragmentView.findViewById(R.id.id_zoom_more);
+        button_zoom_less = (ImageButton) myFragmentView.findViewById(R.id.id_zoom_less);
+
+        button_zoom_more.setImageResource(R.mipmap.map_icons_zoom_more);
+        button_zoom_less.setImageResource(R.mipmap.map_icons_zoom_less);
+
+        button_zoom_more.setOnClickListener(new View.OnClickListener() {
+            //@Override
+            public void onClick(View v) {
+                zoom_in();
+            }
+        });
+        button_zoom_less.setOnClickListener(new View.OnClickListener() {
+            //@Override
+            public void onClick(View v) {
+                zoom_out();
+            }
+        });
+    }
+
+    private void zoom_out() {
+        Log.d(TAG, "Entering on zoom_out().");
+        CameraPosition position = map.getCameraPosition();
+        if (zoom > zoom_inc + 1) {
+            zoom = zoom - zoom_inc;
+            Log.d(TAG, "Setting " + zoom + " zoom.");
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(position.target, zoom));
+        }
+    }
+
+    private void zoom_in() {
+        Log.d(TAG, "Entering on zoom_in().");
+        CameraPosition position = map.getCameraPosition();
+        zoom = zoom + zoom_inc;
+        Log.d(TAG, "Setting " + zoom + " zoom.");
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(position.target, zoom));
     }
 
     private Address get_place_address(String place) {
@@ -164,8 +214,8 @@ public class Map extends Fragment implements OnMapReadyCallback {
             return;
         }
         map = googleMap;
-        map.setMinZoomPreference(Setting.getDefaultZoom());
         map.moveCamera(CameraUpdateFactory.newLatLng(map_lat));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(map.getCameraPosition().target, zoom));
 
         if (Setting.getGeolocation()) {
             if (!set_permissions()) {

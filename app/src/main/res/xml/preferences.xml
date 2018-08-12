@@ -24,17 +24,26 @@
             android:title="Initial location"
             android:defaultValue="Granada"
             android:dialogTitle="Enter the location where the center of the map will be located."/>
-        <EditTextPreference
-            android:key="key_zoom"
-            android:title="Map zoom"
-            android:defaultValue="12"
-            android:numeric="decimal"
-            android:dialogTitle="Enter the default map zoom."/>
 
         <SwitchPreference
             android:key="key_geolocation"
             android:title="Enable geolocation"
             android:saveEnabled="false"/>
+
+        <EditTextPreference
+            android:key="key_zoom_inc"
+            android:title="Map zoom increment"
+            android:defaultValue="1"
+            android:inputType="numberDecimal"
+            android:dialogTitle="Enter the desired zoom increase."/>
+
+        <EditTextPreference
+            android:key="key_zoom"
+            android:title="Map zoom"
+            android:defaultValue="12"
+            android:inputType="numberDecimal"
+            android:dialogTitle="Enter the default map zoom."/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

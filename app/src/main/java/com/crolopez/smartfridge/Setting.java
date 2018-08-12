@@ -23,6 +23,7 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
     private static final String PREF_DEF_PLACE = "key_default_place";
     private static final String PREF_ZOOM = "key_zoom";
     private static final String PREF_GEO = "key_geolocation";
+    private static final String PREF_ZOOM_INC = "key_zoom_inc";
     private static SwitchPreference check_geolocation;
 
     @Override
@@ -54,15 +55,15 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
         findPreference(PREF_POR).setSummary(preferences.getString(PREF_POR, null));
         findPreference(PREF_DEF_PLACE).setSummary(preferences.getString(PREF_DEF_PLACE, null));
         findPreference(PREF_ZOOM).setSummary(preferences.getString(PREF_ZOOM, null));
+        findPreference(PREF_ZOOM_INC).setSummary(preferences.getString(PREF_ZOOM_INC, null));
         check_geolocation = (SwitchPreference) findPreference(PREF_GEO);
     }
 
     public static String getServerHost(){ return preferences.getString(PREF_H, null); }
     public static int getServerPort() { return Integer.parseInt(preferences.getString(PREF_POR, null)); }
-    public static String getDefaultPlace(){
-        return preferences.getString(PREF_DEF_PLACE, null);
-    }
-    public static int getDefaultZoom() { return Integer.parseInt(preferences.getString(PREF_POR, null)); }
+    public static String getDefaultPlace(){ return preferences.getString(PREF_DEF_PLACE, null); }
+    public static float getDefaultZoom() { return Float.parseFloat(preferences.getString(PREF_ZOOM, null)); }
+    public static float getDefaultZoomInc() { return Float.parseFloat(preferences.getString(PREF_ZOOM_INC, null)); }
     public static boolean getGeolocation() { return preferences.getBoolean(PREF_GEO, false); }
     public static void setGeolocation() { check_geolocation.setChecked(false); }
 
