@@ -42,8 +42,19 @@ public class Map extends Fragment implements OnMapReadyCallback {
     private static final String URL_API = "http://maps.googleapis.com/maps/api/geocode/xml";
     private ImageButton button_zoom_more;
     private ImageButton button_zoom_less;
+    private ImageButton map_type;
     private float zoom;
     private float zoom_inc;
+    /*
+            *** Map types ***
+            *    MAP_TYPE_NONE
+            *    MAP_TYPE_NORMAL
+            *    MAP_TYPE_SATELLITE
+            *    MAP_TYPE_TERRAIN
+            *    MAP_TYPE_HYBRID
+            *****************
+    */
+    private int selected_map_type;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,6 +62,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         String location;
         myFragmentView = inflater.inflate(R.layout.activity_map, container, false);
 
+        selected_map_type = Setting.getMapType();
         zoom = Setting.getDefaultZoom();
         zoom_inc = Setting.getDefaultZoomInc();
         context = MainActivity.get_application_context();
@@ -74,9 +86,11 @@ public class Map extends Fragment implements OnMapReadyCallback {
         private void init_buttons() {
         button_zoom_more = (ImageButton) myFragmentView.findViewById(R.id.id_zoom_more);
         button_zoom_less = (ImageButton) myFragmentView.findViewById(R.id.id_zoom_less);
+        map_type = (ImageButton) myFragmentView.findViewById(R.id.id_map_type);
 
         button_zoom_more.setImageResource(R.mipmap.map_icons_zoom_more);
         button_zoom_less.setImageResource(R.mipmap.map_icons_zoom_less);
+        map_type.setImageResource(R.mipmap.map_icons_type);
 
         button_zoom_more.setOnClickListener(new View.OnClickListener() {
             //@Override
@@ -85,9 +99,13 @@ public class Map extends Fragment implements OnMapReadyCallback {
             }
         });
         button_zoom_less.setOnClickListener(new View.OnClickListener() {
-            //@Override
             public void onClick(View v) {
                 zoom_out();
+            }
+        });
+        map_type.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                change_map_type();
             }
         });
     }
@@ -97,7 +115,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         CameraPosition position = map.getCameraPosition();
         if (zoom > zoom_inc + 1) {
             zoom = zoom - zoom_inc;
-            Log.d(TAG, "Setting " + zoom + " zoom.");
+            Log.d(TAG, "Setting " + zoom + " zoom...");
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(position.target, zoom));
         }
     }
@@ -108,6 +126,15 @@ public class Map extends Fragment implements OnMapReadyCallback {
         zoom = zoom + zoom_inc;
         Log.d(TAG, "Setting " + zoom + " zoom.");
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(position.target, zoom));
+    }
+
+    private void change_map_type() {
+        Log.d(TAG, "Entering on change_map_type().");
+        selected_map_type = (selected_map_type + 1) % 5;
+        selected_map_type = (selected_map_type == 0) ? 1 : selected_map_type;
+        
+        Log.d(TAG, "Setting " + selected_map_type + " map type...");
+        map.setMapType(selected_map_type);
     }
 
     private Address get_place_address(String place) {
@@ -216,6 +243,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         map = googleMap;
         map.moveCamera(CameraUpdateFactory.newLatLng(map_lat));
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(map.getCameraPosition().target, zoom));
+        map.setMapType(selected_map_type);
 
         if (Setting.getGeolocation()) {
             if (!set_permissions()) {

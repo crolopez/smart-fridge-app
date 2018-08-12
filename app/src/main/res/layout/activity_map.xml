@@ -11,7 +11,7 @@
         android:layout_height="wrap_content" />
 
     <ImageButton
-        android:id="@+id/id_zoom_more"
+        android:id="@+id/id_map_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -19,6 +19,15 @@
         android:layout_marginEnd="120dp"
         android:clickable="true"
         android:focusable="true"
+        app:srcCompat="@mipmap/map_icons_type" />
+
+    <ImageButton
+        android:id="@+id/id_zoom_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="120dp"
         app:srcCompat="@mipmap/map_icons_zoom_more" />
 
     <ImageButton
@@ -26,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="120dp"
+        android:layout_marginEnd="-120dp"
+        android:layout_toStartOf="@+id/id_zoom_more"
         app:srcCompat="@mipmap/map_icons_zoom_less" />
 </RelativeLayout>
