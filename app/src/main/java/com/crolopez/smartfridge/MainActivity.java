@@ -87,6 +87,7 @@ public class MainActivity extends FragmentActivity {
                         break;
                     case com.crolopez.smartfridge.R.id.icon_map:
                         if (map_obj == null) {
+                            ToastMsg.show_toast_msg(application_context,"Loading map..");
                             map_obj = new Map();
                         }
                         newFragment = map_obj;

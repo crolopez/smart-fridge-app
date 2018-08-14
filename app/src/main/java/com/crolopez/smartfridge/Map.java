@@ -242,8 +242,8 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
     private void zoom_out() {
         Log.d(TAG, "Entering on zoom_out().");
-        CameraPosition position = map.getCameraPosition();
         if (zoom > zoom_inc + 1) {
+            CameraPosition position = map.getCameraPosition();
             zoom = zoom - zoom_inc;
             Log.d(TAG, "Setting " + zoom + " zoom...");
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(position.target, zoom));
@@ -252,10 +252,12 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
     private void zoom_in() {
         Log.d(TAG, "Entering on zoom_in().");
-        CameraPosition position = map.getCameraPosition();
-        zoom = zoom + zoom_inc;
-        Log.d(TAG, "Setting " + zoom + " zoom.");
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(position.target, zoom));
+        if (zoom < 21) {
+            CameraPosition position = map.getCameraPosition();
+            zoom = zoom + zoom_inc;
+            Log.d(TAG, "Setting " + zoom + " zoom.");
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(position.target, zoom));
+        }
     }
 
     private void change_map_type() {
@@ -268,30 +270,54 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
     private Address get_place_address(String place) {
         List<Address> addresses;
-        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        Geocoder geocoder;
+        Address retval = null;
+
+        Log.d(TAG, "Entering on get_place_address().");
+
+        geocoder = new Geocoder(context, Locale.getDefault());
 
         try {
-            addresses = geocoder.getFromLocationName(place, 1);
+            addresses = geocoder.getFromLocationName(place, 1); // Time bottle neck
             if (addresses.size() > 0) {
-                return addresses.get(0);
+                retval = addresses.get(0);
             }
         } catch (IOException e) {
             Log.d(TAG, "Exception: get_place_address(): 1");
             e.printStackTrace();
         }
-        return null;
+
+        Log.d(TAG, "Ending get_place_address().");
+
+        return retval;
     }
 
     private boolean set_map_lat(String place) {
-        Address address = get_place_address(place);
+        Character first_char;
+        Double lat, lon;
+        first_char = place.charAt(0);
 
-        Log.d(TAG, "Trying to set '" + place + "' location.");
-        if (address == null) {
-            Log.d(TAG, "Exception: get_place_address(): 1");
-            return false;
+        // Check if the place is a coordinate
+        if ((first_char > '0' && first_char <= '9') || first_char == '-') {
+            String []split;
+
+            split = place.split(",");
+            lat = Double.parseDouble(split[0]);
+            lon = Double.parseDouble(split[1]);
+        } else {
+            Address address = get_place_address(place);
+
+            Log.d(TAG, "Trying to set '" + place + "' location.");
+            if (address == null) {
+                Log.d(TAG, "Exception: get_place_address(): 1");
+                return false;
+            } else {
+                lat = address.getLatitude();
+                lon = address.getLongitude();
+            }
         }
 
-        map_lat = new LatLng(address.getLatitude(), address.getLongitude());
+        map_lat = new LatLng(lat, lon);
         return true;
     }
 

@@ -22,8 +22,8 @@
         <EditTextPreference
             android:key="key_default_place"
             android:title="Initial location"
-            android:defaultValue="Granada"
-            android:dialogTitle="Enter the location where the center of the map will be located"/>
+            android:defaultValue="37.1970593,-3.6267447"
+            android:dialogTitle="Enter the location where the center of the map will be located. Accepts place names and coordinates (recommended)"/>
 
         <SwitchPreference
             android:key="key_geolocation"
