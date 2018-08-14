@@ -1,21 +1,24 @@
 package com.crolopez.smartfridge;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
-
-import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -23,19 +26,25 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-
-import org.json.JSONObject;
-
+import com.google.android.gms.maps.model.MarkerOptions;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Type;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class Map extends Fragment implements OnMapReadyCallback {
     private String TAG = "MAP";
+    private String cache_pins;
+    private String separator = "!=!";
+    private LayoutInflater inflater;
     private View myFragmentView;
-    private MapView map_view;
+    private MapView map_view = null;
     private GoogleMap map;
     private Context context;
     private LatLng map_lat = null;
@@ -45,6 +54,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
     private ImageButton map_type;
     private float zoom;
     private float zoom_inc;
+    ArrayList<Pair<String,LatLng>> pin_list = null;
     /*
             *** Map types ***
             *    MAP_TYPE_NONE
@@ -60,30 +70,150 @@ public class Map extends Fragment implements OnMapReadyCallback {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         String location;
+        int status;
+
+        Log.d(TAG, "Entering on onCreateView().");
         myFragmentView = inflater.inflate(R.layout.activity_map, container, false);
-
-        selected_map_type = Setting.getMapType();
-        zoom = Setting.getDefaultZoom();
-        zoom_inc = Setting.getDefaultZoomInc();
+        this.inflater = inflater;
         context = MainActivity.get_application_context();
-        MapsInitializer.initialize(this.getActivity());
-        map_view = (MapView) myFragmentView.findViewById(R.id.id_mapview);
-        map_view.onCreate(savedInstanceState);
-        map_view.getMapAsync(this);
+        cache_pins = MainActivity.get_application_cache_dir() + "pins.cache";
+        status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
 
-        init_buttons();
+        if(status != ConnectionResult.SUCCESS){ // Google Play Services are not available
+            ToastMsg.show_toast_msg(context, "Google Play Services are not available. Error: " + status);
+        } else {
+            selected_map_type = Setting.getMapType();
+            zoom = Setting.getDefaultZoom();
+            zoom_inc = Setting.getDefaultZoomInc();
+            MapsInitializer.initialize(this.getActivity());
+            map_view = (MapView) myFragmentView.findViewById(R.id.id_mapview);
+            map_view.onCreate(savedInstanceState);
+            map_view.getMapAsync(this);
 
-        // Get the initial location
-        location = Setting.getDefaultPlace();
-        if (!set_map_lat(location)) {
-            Log.d(TAG, "The location '" + location + "'could not be set.");
-            ToastMsg.show_toast_msg(context, "Could not find '" + location + "'.");
+            init_buttons();
+
+            // Get the initial location
+            location = Setting.getDefaultPlace();
+            if (!set_map_lat(location)) {
+                Log.d(TAG, "The location '" + location + "'could not be set.");
+                ToastMsg.show_toast_msg(context, "Could not find '" + location + "'.");
+            }
         }
 
         return myFragmentView;
     }
 
-        private void init_buttons() {
+    private void init_pin_list() {
+        if (pin_list == null) {
+            String buffer;
+            BufferedReader file_input;
+            String []splitted;
+            String str_lat, str_long, tittle;
+
+            pin_list = new ArrayList<>();
+
+            if (new File(cache_pins).exists()) {
+                try {
+                    file_input = new BufferedReader(new FileReader(cache_pins));
+                } catch (FileNotFoundException e) {
+                    Log.d(TAG, "Exception: init_pin_list(): 1");
+                    e.printStackTrace();
+                    return;
+                }
+
+                while (true) {
+                    try {
+                        buffer = file_input.readLine();
+                    } catch (IOException e) {
+                        Log.d(TAG, "Exception: init_pin_list(): 2");
+                        e.printStackTrace();
+                        return;
+                    }
+
+                    if (buffer == null) {
+                        break;
+                    }
+
+                    Log.d(TAG, "Read '" + buffer + "' from pin list cache.");
+
+                    splitted = buffer.split(separator);
+                    tittle = splitted[0];
+                    str_lat = splitted[1];
+                    str_long = splitted[2];
+                    pin_list.add(new Pair<>(tittle, new LatLng(Double.parseDouble(str_lat), Double.parseDouble(str_long))));
+                }
+            }
+        }
+
+        for (int i = 0; i < pin_list.size(); i++) {
+            add_pin(pin_list.get(i).second, pin_list.get(i).first, false);
+        }
+    }
+
+    private void map_click (final LatLng location) {
+        View prompts_view;
+        AlertDialog.Builder dialog_builder;
+        AlertDialog alert_dialog;
+        final EditText place_name;
+
+        prompts_view = inflater.inflate(R.layout.activity_map_place, null);
+        dialog_builder = new AlertDialog.Builder(getActivity());
+        dialog_builder.setView(prompts_view);
+        place_name = (EditText) prompts_view.findViewById(R.id.id_map_place_name);
+
+        dialog_builder
+                .setCancelable(false)
+                .setPositiveButton("Add",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                String name = place_name.getText().toString();
+
+                                if (name != null) {
+                                    add_pin(location, name, true);
+                                }
+                            }
+                        })
+                .setNeutralButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        alert_dialog = dialog_builder.create();
+        alert_dialog.show();
+    }
+
+    private void add_pin(LatLng location, String place_tittle, boolean store) {
+        MarkerOptions new_mark = new MarkerOptions();
+        new_mark.position(location);
+        new_mark.title(place_tittle);
+        map.addMarker(new_mark);
+
+        if (store) {
+            PrintWriter file_output;
+            String buffer;
+
+            pin_list.add(new Pair<>(place_tittle, location));
+
+            try {
+                file_output = new PrintWriter(new FileOutputStream(new File(cache_pins), true));
+            } catch (FileNotFoundException e) {
+                Log.d(TAG, "Exception: add_pin(): 1");
+                e.printStackTrace();
+                return;
+            }
+
+            buffer = place_tittle + separator +
+                    location.latitude + separator +
+                    location.longitude + separator;
+
+            file_output.println(buffer);
+            file_output.close();
+        }
+    }
+
+    private void init_buttons() {
         button_zoom_more = (ImageButton) myFragmentView.findViewById(R.id.id_zoom_more);
         button_zoom_less = (ImageButton) myFragmentView.findViewById(R.id.id_zoom_less);
         map_type = (ImageButton) myFragmentView.findViewById(R.id.id_map_type);
@@ -132,7 +262,6 @@ public class Map extends Fragment implements OnMapReadyCallback {
         Log.d(TAG, "Entering on change_map_type().");
         selected_map_type = (selected_map_type + 1) % 5;
         selected_map_type = (selected_map_type == 0) ? 1 : selected_map_type;
-        
         Log.d(TAG, "Setting " + selected_map_type + " map type...");
         map.setMapType(selected_map_type);
     }
@@ -240,10 +369,20 @@ public class Map extends Fragment implements OnMapReadyCallback {
             Log.d(TAG, "The coordinates of the default place are not set.");
             return;
         }
+
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()  {
+            @Override
+            public void onMapClick(LatLng location) {
+                map_click(location);
+            }
+        });
+
         map = googleMap;
         map.moveCamera(CameraUpdateFactory.newLatLng(map_lat));
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(map.getCameraPosition().target, zoom));
         map.setMapType(selected_map_type);
+
+        init_pin_list();
 
         if (Setting.getGeolocation()) {
             if (!set_permissions()) {
