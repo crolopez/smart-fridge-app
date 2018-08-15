@@ -83,7 +83,7 @@ public class ShoppingList extends Fragment {
     }
 
     public static List<ListNode> get_products() {
-        return list_adapter.get_all();
+        return (list_adapter != null) ? list_adapter.get_all() : null;
     }
 
     private void show_modify_dialog(final int mode, final ListNode node) {

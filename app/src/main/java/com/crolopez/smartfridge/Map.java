@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.icu.util.Calendar;
 import android.location.Address;
 import android.location.Criteria;
@@ -20,6 +22,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -67,10 +70,8 @@ public class Map extends Fragment implements OnMapReadyCallback {
     private boolean tracker_enable;
     private float zoom;
     private float zoom_inc;
-    LocationManager location_manager = null;
-    LocationListener locationListenerGPS = null;
+    private static int notify_id = 1;
     static ArrayList<Pair<String, LatLng>> pin_list = null;
-    private BroadcastReceiver receiver_func;
     /*
      *** Map types ***
      *    MAP_TYPE_NONE
@@ -115,15 +116,6 @@ public class Map extends Fragment implements OnMapReadyCallback {
                 ToastMsg.show_toast_msg(context, "Could not find '" + location + "'.");
             }
         }
-
-        /*
-        // Enable tracker
-        if (Setting.getGeolocation()) {
-            if (!set_permissions(true)) {
-                // Without permissions
-                Log.d(TAG, "The application has not permissions to enable the tracker mode.");
-            }
-        }*/
 
         return myFragmentView;
     }
@@ -285,6 +277,32 @@ public class Map extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    public static void send_notification(Float distance, String place, String elements, Bitmap icon) {
+        NotificationCompat.Builder not_builder;
+        NotificationManager not_manager;
+
+         not_builder = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.common_google_signin_btn_text_dark_normal)
+                        .setContentTitle("You are " + String.format("%.1f", distance)  + "m from " + place);
+
+         if (elements != null) {
+             not_builder.setContentText("Take the opportunity to buy " + elements);
+         }
+
+         if (icon != null) {
+             not_builder.setLargeIcon(icon);
+         }
+
+         not_manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        assert not_manager != null;
+        synchronized(not_manager){
+            not_manager.notify();
+        }
+        notify_id = (notify_id + 1 % 10000);
+        not_manager.notify(notify_id, not_builder.build());
+    }
+
     protected static void check_proximity() {
         Location loc = get_current_location();
         Double lat, lon;
@@ -305,7 +323,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
                 if (distance[0] <= distance_alert) {
                     Log.i(TAG, "The user is near to '" + tittle + "'. Distance: " + distance[0] + ".");
-                    check_products_place(tittle);
+                    check_products_place(distance[0], tittle);
                 }
             }
         } else {
@@ -313,13 +331,30 @@ public class Map extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private static void check_products_place(String place) {
+    private static void check_products_place(Float distance, String place) {
         List<ListNode> nodes = ShoppingList.get_products();
+        String products_list = null;
+        Bitmap image = null;
 
-        for (int i = 0; i < nodes.size(); i++) {
-            if (place.equalsIgnoreCase(nodes.get(i).get_place())) {
-                Log.i(TAG, "The user is close to '" + place + "', where the purchase of '" +
-                        nodes.get(i).get_name() + "' has been configured.");
+        if (nodes != null) {
+            for (int i = 0; i < nodes.size(); i++) {
+                ListNode node = nodes.get(i);
+                if (place.equalsIgnoreCase(node.get_place())) {
+                    Log.i(TAG, "The user is close to '" + place + "', where the purchase of '" +
+                            node.get_name() + "' has been configured.");
+                    if (products_list != null) {
+                        products_list = products_list + ", " + node.get_name();
+                    } else {
+                        products_list = node.get_name();
+                    }
+
+                    if (image == null) {
+                        image = node.check_image("front", true);
+                    }
+                }
+            }
+            if (products_list != null) {
+                send_notification(distance, place, products_list, image);
             }
         }
     }
@@ -560,10 +595,12 @@ public class Map extends Fragment implements OnMapReadyCallback {
             button_tracker.setImageResource(R.mipmap.map_icons_track_enable);
             am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 10000, pendingIntent);
             Log.d(TAG, "Setting tracker. ");
+            ToastMsg.show_toast_msg(context, "Tracker enabled.");
         } else {
             button_tracker.setImageResource(R.mipmap.map_icons_track_disable);
             am.cancel(pendingIntent);
             Log.d(TAG, "Canceling tracker.");
+            ToastMsg.show_toast_msg(context, "Tracker disabled.");
         }
     }
 
