@@ -93,7 +93,7 @@ public class Inventory extends Fragment {
         db.beginTransaction();
 
         try {
-            inventory_n = new DatabaseDisplayer(db.rawQuery(products_data_query,null));
+            inventory_n = new DatabaseDisplayer(db.rawQuery(products_data_query,null), inflater);
             if(inventory_n.is_valid()) {
                 for (int position = 0; position < inventory_n.get_count(); position++) {
                     row = inventory_n.get_row(position);
@@ -109,9 +109,7 @@ public class Inventory extends Fragment {
 
         } finally {
             db.endTransaction();
-            // End the transaction.
             db.close();
-            // Close database
         }
     }
 }

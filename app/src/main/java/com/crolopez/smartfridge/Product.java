@@ -14,7 +14,7 @@ public class Product {
     private String TAG = "PRODUCT";
     private String code;
     private String name;
-    private int quantity;
+    private String quantity;
     private int elements;
     private String timestamp;
     private String brands;
@@ -24,7 +24,7 @@ public class Product {
     private String image_nutrition;
     private String image_ingredients;
 
-    Product(String in_code, String in_name, int in_quantity, int in_elements, String in_timestamp,
+    Product(String in_code, String in_name, String in_quantity, int in_elements, String in_timestamp,
             String in_brands, String in_labels, String in_expiration_date, String in_image_front,
             String in_image_nutrition, String in_image_ingredients) {
         code = in_code;
@@ -44,7 +44,7 @@ public class Product {
 
     public String get_code() { return code; }
     public String get_name() { return name; }
-    public int get_quantity() { return quantity; }
+    public String get_quantity() { return quantity; }
     public int get_elements() { return elements; }
     public String get_timestamp() { return timestamp; }
     public String get_brands() { return brands; }

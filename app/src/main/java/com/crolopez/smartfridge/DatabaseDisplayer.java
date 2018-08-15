@@ -1,16 +1,21 @@
 package com.crolopez.smartfridge;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -24,9 +29,13 @@ public class DatabaseDisplayer {
     private Context context;
     private int text_size_dp = 15;
     private ArrayList<Product> products;
+    private ArrayList<Pair<String,String>> additives;
+    private ArrayList<Pair<String,String>> allergens;
+    private ArrayList<Pair<String,String>> ingredients;
     private int count = 0;
+    private LayoutInflater inflater;
 
-    DatabaseDisplayer(Cursor cursor) {
+    DatabaseDisplayer(Cursor cursor, LayoutInflater inflater) {
         if (cursor.getCount() > 0) {
             is_valid = true;
         } else {
@@ -35,7 +44,7 @@ public class DatabaseDisplayer {
         }
         this.cursor = cursor;
         context = MainActivity.get_application_context();
-
+        this.inflater = inflater;
         set_products_array();
     }
 
@@ -65,7 +74,7 @@ public class DatabaseDisplayer {
     public String get_sql_code() { return cursor.getString(cursor.getColumnIndex("CODE")); }
     public String get_sql_name() { return cursor.getString(cursor.getColumnIndex("NAME")); }
     public int get_sql_elements() { return cursor.getInt(cursor.getColumnIndex("ELEMENTS")); }
-    public int get_sql_quantity() { return cursor.getInt(cursor.getColumnIndex("QUANTITY")); }
+    public String get_sql_quantity() { return cursor.getString(cursor.getColumnIndex("QUANTITY")); }
     public String get_sql_timestamp() { return cursor.getString(cursor.getColumnIndex("TIMESTAMP")); }
     public String get_sql_brands() { return cursor.getString(cursor.getColumnIndex("BRANDS")); }
     public String get_sql_labels() { return cursor.getString(cursor.getColumnIndex("LABELS")); }
@@ -179,5 +188,49 @@ public class DatabaseDisplayer {
                 return true;
             }
         });
+
+        // normal click
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Product pr;
+
+                pr = products.get(v.getId());
+                Log.d(TAG, "Click on '" + pr.get_name() + "'.");
+                show_details(pr);
+            }
+        });
+    }
+
+    private void show_details(Product product) {
+        View prompts_view;
+        AlertDialog.Builder dialog_builder;
+        AlertDialog alert_dialog;
+        TextView text;
+
+        prompts_view = inflater.inflate(R.layout.activity_inventory_advanced, null);
+        dialog_builder = new AlertDialog.Builder(MainActivity.getActivity());
+        dialog_builder.setView(prompts_view);
+
+        ((TextView) prompts_view.findViewById(R.id.id_ad_name_value)).setText(product.get_name());
+        ((TextView) prompts_view.findViewById(R.id.id_ad_elements_value)).setText(String.valueOf(product.get_elements()));
+        ((TextView) prompts_view.findViewById(R.id.id_ad_code_value)).setText(product.get_code());
+        ((TextView) prompts_view.findViewById(R.id.id_ad_quantity_value)).setText(product.get_quantity());
+        ((TextView) prompts_view.findViewById(R.id.id_ad_brands_value)).setText(product.get_brands());
+        ((TextView) prompts_view.findViewById(R.id.id_ad_expiration_value)).setText(product.get_expiration_date());
+        ((TextView) prompts_view.findViewById(R.id.id_ad_labels_value)).setText(product.get_labels());
+        ((TextView) prompts_view.findViewById(R.id.id_ad_added_value)).setText(product.get_timestamp());
+
+        dialog_builder
+                .setCancelable(false)
+                .setPositiveButton("Done",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        alert_dialog = dialog_builder.create();
+        alert_dialog.show();
     }
 }

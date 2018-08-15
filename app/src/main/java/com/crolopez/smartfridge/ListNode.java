@@ -6,7 +6,7 @@ public class ListNode extends Product{
     private static String default_place = "Anywhere";
 
     ListNode(String name, int elements, String place, String code, String image_front, boolean mark) {
-        super(code, name, 0, elements, null,
+        super(code, name, "0g", elements, null,
                 null, null, null, image_front,
                 null, null);
         this.mark = mark;

@@ -129,4 +129,7 @@ public class MainActivity extends FragmentActivity {
         );
     }
 
+    public static Activity getActivity() {
+        return activity;
+    }
 }
