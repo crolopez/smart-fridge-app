@@ -38,4 +38,13 @@
         android:layout_marginEnd="-120dp"
         android:layout_toStartOf="@+id/id_zoom_more"
         app:srcCompat="@mipmap/map_icons_zoom_less" />
+
+    <ImageButton
+        android:id="@+id/id_tracker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="-120dp"
+        android:layout_toEndOf="@+id/id_map_type"
+        app:srcCompat="@mipmap/map_icons_track_disable" />
 </RelativeLayout>

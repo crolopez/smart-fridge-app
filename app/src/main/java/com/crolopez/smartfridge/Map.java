@@ -1,13 +1,23 @@
 package com.crolopez.smartfridge;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.icu.util.Calendar;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -37,33 +47,39 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import static android.content.Context.ALARM_SERVICE;
 
 public class Map extends Fragment implements OnMapReadyCallback {
-    private String TAG = "MAP";
+    private static String TAG = "MAP";
     private String cache_pins;
     private String separator = "!=!";
     private LayoutInflater inflater;
     private View myFragmentView;
     private MapView map_view = null;
     private GoogleMap map;
-    private Context context;
+    private static Context context;
     private LatLng map_lat = null;
     private static final String URL_API = "http://maps.googleapis.com/maps/api/geocode/xml";
     private ImageButton button_zoom_more;
     private ImageButton button_zoom_less;
-    private ImageButton map_type;
+    private ImageButton button_map_type;
+    private ImageButton button_tracker;
+    private boolean tracker_enable;
     private float zoom;
     private float zoom_inc;
-    ArrayList<Pair<String,LatLng>> pin_list = null;
+    LocationManager location_manager = null;
+    LocationListener locationListenerGPS = null;
+    static ArrayList<Pair<String, LatLng>> pin_list = null;
+    private BroadcastReceiver receiver_func;
     /*
-            *** Map types ***
-            *    MAP_TYPE_NONE
-            *    MAP_TYPE_NORMAL
-            *    MAP_TYPE_SATELLITE
-            *    MAP_TYPE_TERRAIN
-            *    MAP_TYPE_HYBRID
-            *****************
-    */
+     *** Map types ***
+     *    MAP_TYPE_NONE
+     *    MAP_TYPE_NORMAL
+     *    MAP_TYPE_SATELLITE
+     *    MAP_TYPE_TERRAIN
+     *    MAP_TYPE_HYBRID
+     *****************
+     */
     private int selected_map_type;
 
     @Override
@@ -79,7 +95,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         cache_pins = MainActivity.get_application_cache_dir() + "pins.cache";
         status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
 
-        if(status != ConnectionResult.SUCCESS){ // Google Play Services are not available
+        if (status != ConnectionResult.SUCCESS) { // Google Play Services are not available
             ToastMsg.show_toast_msg(context, "Google Play Services are not available. Error: " + status);
         } else {
             selected_map_type = Setting.getMapType();
@@ -100,6 +116,15 @@ public class Map extends Fragment implements OnMapReadyCallback {
             }
         }
 
+        /*
+        // Enable tracker
+        if (Setting.getGeolocation()) {
+            if (!set_permissions(true)) {
+                // Without permissions
+                Log.d(TAG, "The application has not permissions to enable the tracker mode.");
+            }
+        }*/
+
         return myFragmentView;
     }
 
@@ -107,7 +132,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         if (pin_list == null) {
             String buffer;
             BufferedReader file_input;
-            String []splitted;
+            String[] splitted;
             String str_lat, str_long, tittle;
 
             pin_list = new ArrayList<>();
@@ -150,7 +175,20 @@ public class Map extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void map_click (final LatLng location) {
+    public static Location get_current_location() {
+        Location location;
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return null;
+        }
+        location = locationManager.getLastKnownLocation(locationManager
+                .getBestProvider(new Criteria(), false));
+
+        return location;
+    }
+
+    private void map_click(final LatLng location) {
         View prompts_view;
         AlertDialog.Builder dialog_builder;
         AlertDialog alert_dialog;
@@ -165,7 +203,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
                 .setCancelable(false)
                 .setPositiveButton("Add",
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 String name = place_name.getText().toString();
 
                                 if (name != null) {
@@ -175,7 +213,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
                         })
                 .setNeutralButton("Cancel",
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                             }
                         });
@@ -216,14 +254,16 @@ public class Map extends Fragment implements OnMapReadyCallback {
     private void init_buttons() {
         button_zoom_more = (ImageButton) myFragmentView.findViewById(R.id.id_zoom_more);
         button_zoom_less = (ImageButton) myFragmentView.findViewById(R.id.id_zoom_less);
-        map_type = (ImageButton) myFragmentView.findViewById(R.id.id_map_type);
+        button_map_type = (ImageButton) myFragmentView.findViewById(R.id.id_map_type);
+        button_tracker = (ImageButton) myFragmentView.findViewById(R.id.id_tracker);
 
         button_zoom_more.setImageResource(R.mipmap.map_icons_zoom_more);
         button_zoom_less.setImageResource(R.mipmap.map_icons_zoom_less);
-        map_type.setImageResource(R.mipmap.map_icons_type);
+        button_map_type.setImageResource(R.mipmap.map_icons_type);
+        button_tracker.setImageResource(R.mipmap.map_icons_track_disable);
+        tracker_enable = false;
 
         button_zoom_more.setOnClickListener(new View.OnClickListener() {
-            //@Override
             public void onClick(View v) {
                 zoom_in();
             }
@@ -233,11 +273,55 @@ public class Map extends Fragment implements OnMapReadyCallback {
                 zoom_out();
             }
         });
-        map_type.setOnClickListener(new View.OnClickListener() {
+        button_map_type.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 change_map_type();
             }
         });
+        button_tracker.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                set_notify_alarm();
+            }
+        });
+    }
+
+    protected static void check_proximity() {
+        Location loc = get_current_location();
+        Double lat, lon;
+        String tittle;
+        Double lat_it, lon_it;
+        float[] distance = new float[2];
+        Double distance_alert = Setting.getNotifyDistance();
+
+        if (loc != null) {
+            lat = loc.getLatitude();
+            lon = loc.getLongitude();
+
+            for (int i = 0; i < pin_list.size(); i++) {
+                tittle = pin_list.get(i).first;
+                lat_it = pin_list.get(i).second.latitude;
+                lon_it = pin_list.get(i).second.longitude;
+                Location.distanceBetween(lat, lon, lat_it, lon_it, distance);
+
+                if (distance[0] <= distance_alert) {
+                    Log.i(TAG, "The user is near to '" + tittle + "'. Distance: " + distance[0] + ".");
+                    check_products_place(tittle);
+                }
+            }
+        } else {
+            Log.e(TAG, "Error trying to get the current location.");
+        }
+    }
+
+    private static void check_products_place(String place) {
+        List<ListNode> nodes = ShoppingList.get_products();
+
+        for (int i = 0; i < nodes.size(); i++) {
+            if (place.equalsIgnoreCase(nodes.get(i).get_place())) {
+                Log.i(TAG, "The user is close to '" + place + "', where the purchase of '" +
+                        nodes.get(i).get_name() + "' has been configured.");
+            }
+        }
     }
 
     private void zoom_out() {
@@ -299,7 +383,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
         // Check if the place is a coordinate
         if ((first_char > '0' && first_char <= '9') || first_char == '-') {
-            String []split;
+            String[] split;
 
             split = place.split(",");
             lat = Double.parseDouble(split[0]);
@@ -396,7 +480,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
             return;
         }
 
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()  {
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng location) {
                 map_click(location);
@@ -411,18 +495,105 @@ public class Map extends Fragment implements OnMapReadyCallback {
         init_pin_list();
 
         if (Setting.getGeolocation()) {
-            if (!set_permissions()) {
+            if (!set_permissions(false)) {
                 return;
             }
         }
     }
 
-    private boolean set_permissions() {
+    private boolean set_permissions(boolean tracker) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return false;
         }
-        map.setMyLocationEnabled(true);
+        if (tracker) {
+
+        } else {
+            map.setMyLocationEnabled(true);
+        }
+
         return true;
     }
 
+
+    private LocationListener createLocationListenerGPS() {
+        LocationListener listener = new LocationListener() {
+            @Override
+            public void onLocationChanged(android.location.Location location) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                Log.d(TAG, "New Latitude: " + latitude + "New Longitude: " + longitude);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                Log.d(TAG, "Entering on onStatusChanged().");
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                Log.d(TAG, "Entering on onProviderEnabled().");
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Log.d(TAG, "Entering on onProviderDisabled().");
+            }
+        };
+
+        return listener;
+    }
+
+    private void set_notify_alarm() {
+        Calendar calendar;
+        Intent intent;
+        PendingIntent pendingIntent;
+        AlarmManager am;
+
+        tracker_enable = !tracker_enable;
+
+        calendar = Calendar.getInstance();
+        intent = new Intent(context, TrackPosition.class);
+        pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+
+        if (tracker_enable) {
+            button_tracker.setImageResource(R.mipmap.map_icons_track_enable);
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 10000, pendingIntent);
+            Log.d(TAG, "Setting tracker. ");
+        } else {
+            button_tracker.setImageResource(R.mipmap.map_icons_track_disable);
+            am.cancel(pendingIntent);
+            Log.d(TAG, "Canceling tracker.");
+        }
+    }
+
+    private void set_notify_location_alarm() {
+        Intent locationIntent;
+        PendingIntent pendingIntent;
+        TrackPosition proximityReceiver;
+
+        tracker_enable = !tracker_enable;
+
+        LocationManager loc = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationIntent = new Intent("tp");
+        proximityReceiver = new TrackPosition();
+        pendingIntent = PendingIntent.getBroadcast(context, 3, locationIntent, 0);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Error on set_notify_location_alarm");
+            return;
+        }
+        loc.addProximityAlert(36.7511423, -3.5242927, 30, -1,
+                PendingIntent.getActivity(context, 0, new Intent().putExtra("loc_name", "location_name"), 0));
+
+        IntentFilter filter = new IntentFilter("my");
+        context.registerReceiver(proximityReceiver, filter);
+
+        if (tracker_enable) {
+            button_tracker.setImageResource(R.mipmap.map_icons_track_enable);
+            Log.d(TAG, "Setting tracker.");
+        } else {
+            button_tracker.setImageResource(R.mipmap.map_icons_track_disable);
+            Log.d(TAG, "Canceling tracker.");
+        }
+    }
 }

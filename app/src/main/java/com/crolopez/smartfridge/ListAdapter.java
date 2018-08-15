@@ -28,9 +28,11 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
     private String backup_file;
     private static String pending_file = null;
     private static String separator = "-!-";
+    private List<ListNode> elements;
 
     public ListAdapter(Context c, List<ListNode> objects, View f_view, LayoutInflater inf) {
         super(c, 0, objects);
+        elements = objects;
         context = c;
         myFragmentView = f_view;
         inflater = inf;
@@ -38,6 +40,10 @@ public class ListAdapter extends ArrayAdapter<ListNode> {
         if (pending_file == null) {
             pending_file = MainActivity.get_application_cache_dir() + "shopping_list.pending";
         }
+    }
+
+    public List<ListNode> get_all() {
+        return elements;
     }
 
     @Override

@@ -14,12 +14,13 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ShoppingList extends Fragment {
     private String TAG = "SHOPPING_LIST";
     private ListView listview;
     private View myFragmentView = null;
-    private ListAdapter list_adapter;
+    private static ListAdapter list_adapter;
     private Context context;
     private ImageButton add_buttom;
     private ImageButton clear_buttom;
@@ -79,6 +80,10 @@ public class ShoppingList extends Fragment {
         });
 
         return myFragmentView;
+    }
+
+    public static List<ListNode> get_products() {
+        return list_adapter.get_all();
     }
 
     private void show_modify_dialog(final int mode, final ListNode node) {

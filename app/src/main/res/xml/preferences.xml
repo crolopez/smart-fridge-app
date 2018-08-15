@@ -51,6 +51,13 @@
             android:dialogTitle="Select the mode in which the map is displayed"
             android:entryValues="@array/map_type_array_values"/>
 
+        <EditTextPreference
+            android:key="key_map_min_distance"
+            android:title="Minimum distance to report changes"
+            android:defaultValue="10"
+            android:inputType="number"
+            android:dialogTitle="Add the minimum distance to check for position changes (in meters)"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -1,19 +1,10 @@
 package com.crolopez.smartfridge;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
-import android.support.v4.app.ActivityCompat;
-import android.util.Log;
-import android.util.Pair;
-
-import static java.lang.Thread.sleep;
 
 public class Setting extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static String TAG = "SETTING";
@@ -25,6 +16,7 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
     private static final String PREF_GEO = "key_geolocation";
     private static final String PREF_ZOOM_INC = "key_zoom_inc";
     private static final String PREF_MAP_TYPE = "key_map_type_list";
+    private static final String PREF_MAP_MIN_D = "key_map_min_distance";
     private static SwitchPreference check_geolocation;
 
     @Override
@@ -58,6 +50,7 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
         findPreference(PREF_ZOOM).setSummary(preferences.getString(PREF_ZOOM, null));
         findPreference(PREF_ZOOM_INC).setSummary(preferences.getString(PREF_ZOOM_INC, null));
         findPreference(PREF_MAP_TYPE).setSummary(preferences.getString(PREF_MAP_TYPE, null));
+        findPreference(PREF_MAP_MIN_D).setSummary(preferences.getString(PREF_MAP_MIN_D, null));
         check_geolocation = (SwitchPreference) findPreference(PREF_GEO);
     }
 
@@ -67,6 +60,7 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
     public static float getDefaultZoom() { return Float.parseFloat(preferences.getString(PREF_ZOOM, null)); }
     public static float getDefaultZoomInc() { return Float.parseFloat(preferences.getString(PREF_ZOOM_INC, null)); }
     public static boolean getGeolocation() { return preferences.getBoolean(PREF_GEO, false); }
+    public static double getNotifyDistance() { return Double.parseDouble(preferences.getString(PREF_MAP_MIN_D, null)); }
     public static void setGeolocation() { check_geolocation.setChecked(false); }
     public static int getMapType() {
         int retval;
