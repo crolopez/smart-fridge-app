@@ -20,7 +20,7 @@ public class ToastMsg {
         toast_msg = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
         toast_msg.setGravity(Gravity.CENTER, 0, 0);
         text = (TextView) toast_msg.getView().findViewById(android.R.id.message);
-        text.setTextColor(color);
+        //text.setTextColor(color);
         text.setTypeface(null, Typeface.BOLD);
         toast_msg.show();
     }

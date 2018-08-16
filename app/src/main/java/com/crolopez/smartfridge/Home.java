@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +25,7 @@ public class Home extends Fragment {
     private Context context;
     private String state_file;
     private TextView text_sync_state;
+    private ImageView shield;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,8 +39,11 @@ public class Home extends Fragment {
             }
         });
         text_sync_state = (TextView) myFragmentView.findViewById(R.id.id_sync_state);
+        shield = (ImageView) myFragmentView.findViewById(R.id.id_shield);
         context = MainActivity.get_application_context();
         state_file = MainActivity.get_application_cache_dir() + "sync.state";
+
+        shield.setImageResource(R.drawable.shield);
 
         set_last_sync();
 
