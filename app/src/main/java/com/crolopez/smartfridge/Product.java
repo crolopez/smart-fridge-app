@@ -4,11 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.ImageView;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class Product {
     private String TAG = "PRODUCT";
@@ -23,6 +25,9 @@ public class Product {
     private String image_front;
     private String image_nutrition;
     private String image_ingredients;
+    private ArrayList <String> additives;
+    private ArrayList <Pair<String, String>> ingredients;
+    private ArrayList <Pair<String, String>> allergens;
 
     Product(String in_code, String in_name, String in_quantity, int in_elements, String in_timestamp,
             String in_brands, String in_labels, String in_expiration_date, String in_image_front,
@@ -53,8 +58,18 @@ public class Product {
     public String get_image_front() { return image_front; }
     public String get_image_ingredients() { return image_ingredients; }
     public String get_image_nutrition() { return image_nutrition; }
+    public String get_ingredient(int pos) { return (ingredients.size() > pos) ? ingredients.get(pos).first : null;}
+    public String get_additives(int pos) { return (additives.size() > pos) ? additives.get(pos) : null;}
+    public String get_allergen(int pos) { return (allergens.size() > pos) ? allergens.get(pos).first : null;}
     public void set_elements(int i) { elements = i;}
     public void set_name(String s) { name = s;}
+    public void set_tags(ArrayList <String> additives,
+                         ArrayList <Pair<String, String>> ingredients,
+                         ArrayList <Pair<String, String>> allergens) {
+        this.additives = additives;
+        this.ingredients = ingredients;
+        this.allergens = allergens;
+    }
 
     public ImageView get_imageview() {
         Bitmap image;

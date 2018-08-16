@@ -15,7 +15,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:stretchColumns="*"
-            tools:layout_width="wrap_content">
+            tools:layout_width="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
 
             <TableRow
                 android:layout_width="match_parent"
@@ -158,8 +161,7 @@
                     android:layout_height="wrap_content"
                     android:text="Added: "
                     android:textStyle="bold"
-                    android:textAlignment="viewEnd"/>s
-
+                    android:textAlignment="viewEnd"/>
                 <TextView
                     android:id="@+id/id_ad_added_value"
                     android:layout_width="wrap_content"
@@ -167,6 +169,61 @@
                     android:text="¿?"
                     android:textAlignment="viewStart"/>
             </TableRow>
+            <TableLayout
+                android:id="@+id/id_table_tags_ingredients"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*"
+                tools:layout_width="wrap_content">
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:id="@+id/id_table_row_ingredients"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ingredients"
+                        android:textStyle="bold"
+                        android:textAlignment="center"/>
+                </TableRow>
+            </TableLayout>
+            <TableLayout
+                android:id="@+id/id_table_tags_additives"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*"
+                tools:layout_width="wrap_content">
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:id="@+id/id_table_row_additives"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Additives"
+                        android:textStyle="bold"
+                        android:textAlignment="center"/>
+                </TableRow>
+            </TableLayout>
+            <TableLayout
+                android:id="@+id/id_table_tags_allergens"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*"
+                tools:layout_width="wrap_content">
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:id="@+id/id_table_tags_row_allergens"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Allergens"
+                        android:textStyle="bold"
+                        android:textAlignment="center"/>
+                </TableRow>
+            </TableLayout>
         </TableLayout>
     </ScrollView>
+
 </android.support.constraint.ConstraintLayout>

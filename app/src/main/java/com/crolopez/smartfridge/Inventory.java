@@ -1,10 +1,7 @@
 package com.crolopez.smartfridge;
 
 import android.app.Fragment;
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -15,15 +12,11 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.io.File;
-
 public class Inventory extends Fragment {
     private String TAG = "INVENTORY";
     private View myFragmentView = null;
     private Context context;
     private TableLayout table_layout = null;
-    private String database_path = null;
-    private String products_data_query = "SELECT * FROM PRODUCTS_DATA INNER JOIN IMAGES WHERE IMAGES.CODE = PRODUCTS_DATA.CODE;";
     private LayoutInflater inflater;
 
     @Override
@@ -33,7 +26,6 @@ public class Inventory extends Fragment {
         // Init values
         myFragmentView = inflater.inflate(com.crolopez.smartfridge.R.layout.activity_inventory, container, false);
         context = MainActivity.get_application_context();
-        database_path = MainActivity.get_application_cache_dir() + "products.db";
         this.inflater = inflater;
 
         // Print table
@@ -49,8 +41,8 @@ public class Inventory extends Fragment {
         // Set header
         set_header();
 
-        // Set content
-        set_db_content();
+        // Set products table
+        set_product_table();
     }
 
     private void set_header() {
@@ -79,37 +71,19 @@ public class Inventory extends Fragment {
         table_layout.addView(row_header);
     }
 
-    private void set_db_content() {
-        SQLiteDatabase db = null;
-        ContentValues values;
+    private void set_product_table() {
         TableRow row;
-        DatabaseDisplayer inventory_n;
+        DatabaseDisplayer displayer;
 
-        if (!(new File(database_path).exists())) {
-            return;
-        }
-
-        db = SQLiteDatabase.openDatabase(database_path, null, Context.MODE_PRIVATE);
-        db.beginTransaction();
-
-        try {
-            inventory_n = new DatabaseDisplayer(db.rawQuery(products_data_query,null), inflater);
-            if(inventory_n.is_valid()) {
-                for (int position = 0; position < inventory_n.get_count(); position++) {
-                    row = inventory_n.get_row(position);
-                    if (position % 2 == 1) {
-                        row.setBackgroundColor(Color.parseColor(context.getResources().getString(0 + R.color.colorAccent)));
-                    }
-                    table_layout.addView(row);
+        displayer = new DatabaseDisplayer(inflater);
+        if(displayer.is_valid()) {
+            for (int position = 0; position < displayer.get_count(); position++) {
+                row = displayer.get_row(position);
+                if (position % 2 == 1) {
+                    row.setBackgroundColor(Color.parseColor(context.getResources().getString(0 + R.color.colorAccent)));
                 }
+                table_layout.addView(row);
             }
-            db.setTransactionSuccessful();
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-
-        } finally {
-            db.endTransaction();
-            db.close();
         }
     }
 }

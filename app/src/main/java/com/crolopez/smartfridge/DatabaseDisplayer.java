@@ -1,9 +1,12 @@
 package com.crolopez.smartfridge;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
@@ -20,7 +23,15 @@ import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import java.io.File;
 import java.util.ArrayList;
+
+enum sql_tables {
+    PRODUCT_DATA,
+    INGREDIENTS,
+    ALLERGENS,
+    ADDITIVES
+}
 
 public class DatabaseDisplayer {
     private String TAG = "INV_NODES";
@@ -34,39 +45,97 @@ public class DatabaseDisplayer {
     private ArrayList<Pair<String,String>> ingredients;
     private int count = 0;
     private LayoutInflater inflater;
+    private String database_path = null;
+    private String products_data_query = "SELECT * FROM PRODUCTS_DATA INNER JOIN IMAGES WHERE IMAGES.CODE = PRODUCTS_DATA.CODE;";
+    private String ingredients_query = "SELECT * FROM INGREDIENTS_TAGS WHERE CODE = ?;";
+    private String allergens_query = "SELECT * FROM ALLERGENS_TAGS WHERE CODE = ?;";
+    private String additives_query = "SELECT * FROM ADDITIVES_TAGS WHERE CODE = ?;";
+    private SQLiteDatabase db = null;
 
-    DatabaseDisplayer(Cursor cursor, LayoutInflater inflater) {
-        if (cursor.getCount() > 0) {
-            is_valid = true;
-        } else {
-            is_valid = false;
-            return;
-        }
-        this.cursor = cursor;
+    DatabaseDisplayer(LayoutInflater inflater) {
         context = MainActivity.get_application_context();
         this.inflater = inflater;
+        database_path = MainActivity.get_application_cache_dir() + "products.db";
+
         set_products_array();
+        set_tags();
     }
 
     private void set_products_array() {
         int i;
         products = new ArrayList<>();
 
+        set_cursor(sql_tables.PRODUCT_DATA, null);
+
+        if (cursor.getCount() > 0) {
+            is_valid = true;
+        } else {
+            is_valid = false;
+            return;
+        }
+
         for(i = 0; cursor.moveToNext(); i++) {
             products.add(new Product(get_sql_code(),
-                                    get_sql_name(),
-                                    get_sql_quantity(),
-                                    get_sql_elements(),
-                                    get_sql_timestamp(),
-                                    get_sql_brands(),
-                                    get_sql_labels(),
-                                    get_sql_expiration_date(),
-                                    get_sql_front_image(),
-                                    get_sql_nutrition_image(),
-                                    get_sql_ingredients_image())
-                        );
+                    get_sql_name(),
+                    get_sql_quantity(),
+                    get_sql_elements(),
+                    get_sql_timestamp(),
+                    get_sql_brands(),
+                    get_sql_labels(),
+                    get_sql_expiration_date(),
+                    get_sql_front_image(),
+                    get_sql_nutrition_image(),
+                    get_sql_ingredients_image())
+            );
         }
         count = i;
+
+        end_cursor();
+    }
+
+    private void set_tags() {
+        Product pr;
+        String code;
+        ArrayList <String> additives = null;
+        ArrayList <Pair<String, String>> ingredients = null;
+        ArrayList <Pair<String, String>> allergens = null;
+
+        for (int position = 0; position < get_count(); position++) {
+            pr = products.get(position);
+            code = pr.get_code();
+
+            // Get additives
+            set_cursor(sql_tables.ADDITIVES, code);
+            if (cursor.getCount() > 0) {
+                additives = new ArrayList<>();
+                while (cursor.moveToNext()) {
+                    additives.add(get_sql_additive_name());
+                }
+            }
+            end_cursor();
+
+            // Get ingredients
+            set_cursor(sql_tables.INGREDIENTS, code);
+            if (cursor.getCount() > 0) {
+                ingredients = new ArrayList<>();
+                while (cursor.moveToNext()) {
+                    ingredients.add(new Pair<>(get_sql_ingredient_name(), get_sql_language()));
+                }
+            }
+            end_cursor();
+
+            // Get allergens
+            set_cursor(sql_tables.ALLERGENS, code);
+            if (cursor.getCount() > 0) {
+                allergens = new ArrayList<>();
+                while (cursor.moveToNext()) {
+                    allergens.add(new Pair<>(get_sql_allergen_name(), get_sql_language()));
+                }
+            }
+            end_cursor();
+
+            pr.set_tags(additives, ingredients, allergens);
+        }
     }
 
     public int get_count() { return count; }
@@ -79,6 +148,10 @@ public class DatabaseDisplayer {
     public String get_sql_brands() { return cursor.getString(cursor.getColumnIndex("BRANDS")); }
     public String get_sql_labels() { return cursor.getString(cursor.getColumnIndex("LABELS")); }
     public String get_sql_expiration_date() { return cursor.getString(cursor.getColumnIndex("EXPIRATION_DATE")); }
+    public String get_sql_additive_name() { return cursor.getString(cursor.getColumnIndex("ADDITIVE_NAME")); }
+    public String get_sql_ingredient_name() { return cursor.getString(cursor.getColumnIndex("INGREDIENT_NAME")); }
+    public String get_sql_allergen_name() { return cursor.getString(cursor.getColumnIndex("ALLERGEN_NAME")); }
+    public String get_sql_language() { return cursor.getString(cursor.getColumnIndex("LANGUAGE")); }
     public String get_sql_front_image() { return cursor.getString(cursor.getColumnIndex("FRONT")); }
     public String get_sql_nutrition_image() { return cursor.getString(cursor.getColumnIndex("NUTRITION")); }
     public String get_sql_ingredients_image() { return cursor.getString(cursor.getColumnIndex("INGREDIENTS")); }
@@ -136,6 +209,29 @@ public class DatabaseDisplayer {
         return row;
     }
 
+
+    public TableRow get_tag_row(String tag) {
+        TableRow row;
+        TableLayout tag_element;
+        TableRow.LayoutParams layout_params;
+
+        // Create the row
+        row = new TableRow(context);
+        row.setWeightSum(100);
+
+        // Init the ingredient of the row
+        tag_element = new TableLayout(context);
+        layout_params = new TableRow.LayoutParams(0, TableLayout.LayoutParams.WRAP_CONTENT,100);
+        layout_params.gravity = Gravity.CENTER;
+        tag_element.setLayoutParams(layout_params);
+        tag_element.addView(create_layout_tag_text(tag));
+
+        // Add the elements to the row
+        row.addView(tag_element);
+
+        return row;
+    }
+
     private int dps_to_pixel(int dps) {
         final float conversion_scale = context.getResources().getDisplayMetrics().density;
         return (int) (dps * conversion_scale + 0.5f);
@@ -166,6 +262,25 @@ public class DatabaseDisplayer {
         }
 
         tv.setPaddingRelative(5, (header) ? 50 : 5,5, (last) ? 50 : 5);
+        return tv;
+    }
+
+
+    private TextView create_layout_tag_text(String text) {
+        TextView tv;
+        TableRow.LayoutParams lp;
+
+        lp = new TableRow.LayoutParams(
+                TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT);
+
+        tv = new TextView(context);
+        tv.setLayoutParams(lp);
+        tv.setGravity(Gravity.LEFT);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, text_size_dp);
+        tv.setText(text);
+
+        //tv.setPaddingRelative(5, (header) ? 50 : 5,5, (last) ? 50 : 5);
         return tv;
     }
 
@@ -206,7 +321,9 @@ public class DatabaseDisplayer {
         View prompts_view;
         AlertDialog.Builder dialog_builder;
         AlertDialog alert_dialog;
-        TextView text;
+        TableLayout table_tags;
+        String tag;
+        int i;
 
         prompts_view = inflater.inflate(R.layout.activity_inventory_advanced, null);
         dialog_builder = new AlertDialog.Builder(MainActivity.getActivity());
@@ -221,6 +338,21 @@ public class DatabaseDisplayer {
         ((TextView) prompts_view.findViewById(R.id.id_ad_labels_value)).setText(product.get_labels());
         ((TextView) prompts_view.findViewById(R.id.id_ad_added_value)).setText(product.get_timestamp());
 
+        for (i = 0, table_tags = (TableLayout) prompts_view.findViewById(R.id.id_table_tags_ingredients);
+             (tag = product.get_ingredient(i)) != null; i++) {
+            table_tags.addView(get_tag_row(tag));
+        }
+
+        for (i = 0, table_tags = (TableLayout) prompts_view.findViewById(R.id.id_table_tags_additives);
+             (tag = product.get_additives(i)) != null; i++) {
+            table_tags.addView(get_tag_row(tag));
+        }
+
+        for (i = 0, table_tags = (TableLayout) prompts_view.findViewById(R.id.id_table_tags_allergens);
+             (tag = product.get_allergen(i)) != null; i++) {
+            table_tags.addView(get_tag_row(tag));
+        }
+
         dialog_builder
                 .setCancelable(false)
                 .setPositiveButton("Done",
@@ -232,5 +364,40 @@ public class DatabaseDisplayer {
 
         alert_dialog = dialog_builder.create();
         alert_dialog.show();
+    }
+
+    private void set_cursor(sql_tables table, String code) {
+        String query = null;
+
+        if (!(new File(database_path).exists())) {
+            return;
+        }
+
+        db = SQLiteDatabase.openDatabase(database_path, null, Context.MODE_PRIVATE);
+        db.beginTransaction();
+
+        switch (table) {
+            case PRODUCT_DATA:
+                query = products_data_query;
+                break;
+            case ALLERGENS:
+                query = allergens_query;
+                break;
+            case INGREDIENTS:
+                query = ingredients_query;
+                break;
+            case ADDITIVES:
+                query = additives_query;
+                break;
+        }
+
+        cursor = db.rawQuery(query, (code != null) ? new String[]{code} : null);
+}
+
+    private void end_cursor() {
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+        cursor = null;
     }
 }
