@@ -22,9 +22,9 @@ public class ShoppingList extends Fragment {
     private View myFragmentView = null;
     private static ListAdapter list_adapter;
     private Context context;
-    private ImageButton add_buttom;
-    private ImageButton clear_buttom;
-    private ImageButton generate_buttom;
+    private ImageButton add_button;
+    private ImageButton clear_button;
+    private ImageButton generate_button;
     private LayoutInflater inflater;
     private int add_mode = 0;
     private int modify_mode = 1;
@@ -36,25 +36,25 @@ public class ShoppingList extends Fragment {
         inflater = inf;
         myFragmentView = inflater.inflate(com.crolopez.smartfridge.R.layout.activity_list, container, false);
         listview = (ListView) myFragmentView.findViewById(R.id.id_listview);
-        add_buttom = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_add);
-        generate_buttom = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_autorenew);
-        clear_buttom = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_remove);
-        add_buttom.setImageResource(R.mipmap.list_icons_add);
-        generate_buttom.setImageResource(R.mipmap.ic_autorenew);
-        clear_buttom.setImageResource(R.mipmap.list_icons_remove);
-        add_buttom.setOnClickListener(new View.OnClickListener() {
+        add_button = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_add);
+        generate_button = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_autorenew);
+        clear_button = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_remove);
+        add_button.setImageResource(R.mipmap.list_icons_add);
+        generate_button.setImageResource(R.mipmap.ic_autorenew);
+        clear_button.setImageResource(R.mipmap.list_icons_remove);
+        add_button.setOnClickListener(new View.OnClickListener() {
             //@Override
             public void onClick(View v) {
                 show_modify_dialog(add_mode, null);
             }
         });
-        generate_buttom.setOnClickListener(new View.OnClickListener() {
+        generate_button.setOnClickListener(new View.OnClickListener() {
             //@Override
             public void onClick(View v) {
                 show_generate_dialog();
             }
         });
-        clear_buttom.setOnClickListener(new View.OnClickListener() {
+        clear_button.setOnClickListener(new View.OnClickListener() {
             //@Override
             public void onClick(View v) {
                 show_clear_dialog();
@@ -184,7 +184,7 @@ public class ShoppingList extends Fragment {
         AlertDialog.Builder dialog_builder;
         AlertDialog alert_dialog;
 
-        Log.d(TAG, "Clear products buttom click.");
+        Log.d(TAG, "Clear products button click.");
 
         prompts_view = inflater.inflate(R.layout.activity_list_clear_prompt, null);
         dialog_builder = new AlertDialog.Builder(getActivity());
@@ -213,7 +213,7 @@ public class ShoppingList extends Fragment {
         AlertDialog.Builder dialog_builder;
         AlertDialog alert_dialog;
 
-        Log.d(TAG, "Generate products buttom click.");
+        Log.d(TAG, "Generate products button click.");
 
         prompts_view = inflater.inflate(R.layout.activity_list_generate_prompt, null);
         dialog_builder = new AlertDialog.Builder(getActivity());
