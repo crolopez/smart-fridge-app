@@ -57,7 +57,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:text="Cristóbal López Peñalver"
+            android:text="Made by: \nCristóbal López Peñalver"
+            android:textAlignment="center"
             android:textSize="24sp"
             android:textStyle="bold|italic" />
 

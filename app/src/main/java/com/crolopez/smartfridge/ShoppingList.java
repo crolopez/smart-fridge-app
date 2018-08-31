@@ -24,6 +24,7 @@ public class ShoppingList extends Fragment {
     private Context context;
     private ImageButton add_buttom;
     private ImageButton clear_buttom;
+    private ImageButton generate_buttom;
     private LayoutInflater inflater;
     private int add_mode = 0;
     private int modify_mode = 1;
@@ -36,13 +37,21 @@ public class ShoppingList extends Fragment {
         myFragmentView = inflater.inflate(com.crolopez.smartfridge.R.layout.activity_list, container, false);
         listview = (ListView) myFragmentView.findViewById(R.id.id_listview);
         add_buttom = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_add);
+        generate_buttom = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_autorenew);
         clear_buttom = (ImageButton) myFragmentView.findViewById(R.id.id_shoppinglist_remove);
         add_buttom.setImageResource(R.mipmap.list_icons_add);
+        generate_buttom.setImageResource(R.mipmap.ic_autorenew);
         clear_buttom.setImageResource(R.mipmap.list_icons_remove);
         add_buttom.setOnClickListener(new View.OnClickListener() {
             //@Override
             public void onClick(View v) {
                 show_modify_dialog(add_mode, null);
+            }
+        });
+        generate_buttom.setOnClickListener(new View.OnClickListener() {
+            //@Override
+            public void onClick(View v) {
+                show_generate_dialog();
             }
         });
         clear_buttom.setOnClickListener(new View.OnClickListener() {
@@ -198,5 +207,52 @@ public class ShoppingList extends Fragment {
 
         alert_dialog = dialog_builder.create();
         alert_dialog.show();
+    }
+    private void show_generate_dialog() {
+        View prompts_view;
+        AlertDialog.Builder dialog_builder;
+        AlertDialog alert_dialog;
+
+        Log.d(TAG, "Generate products buttom click.");
+
+        prompts_view = inflater.inflate(R.layout.activity_list_generate_prompt, null);
+        dialog_builder = new AlertDialog.Builder(getActivity());
+        dialog_builder.setView(prompts_view);
+
+        dialog_builder
+                .setCancelable(false)
+                .setPositiveButton("Continue",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                list_adapter.clear();
+                                generate_threshold_list();
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        alert_dialog = dialog_builder.create();
+        alert_dialog.show();
+    }
+
+    void generate_threshold_list() {
+        int elements_thr = Setting.getElementsThreshold();
+        ArrayList<Product> products = Inventory.get_product_list(elements_thr);
+        Product pr;
+
+        for (int i = 0; i < products.size(); i++) {
+            pr = products.get(i);
+            list_adapter.add(
+                    new ListNode(pr.get_name(),
+                            1,
+                            null,
+                            pr.get_code(),
+                            pr.get_image_front(),
+                            false));
+        }
     }
 }

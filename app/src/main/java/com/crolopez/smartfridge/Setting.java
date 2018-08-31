@@ -17,6 +17,7 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
     private static final String PREF_ZOOM_INC = "key_zoom_inc";
     private static final String PREF_MAP_TYPE = "key_map_type_list";
     private static final String PREF_MAP_MIN_D = "key_map_min_distance";
+    private static final String PREF_ELEMENTS_THRE = "key_elements_threshold";
     private static SwitchPreference check_geolocation;
 
     @Override
@@ -51,11 +52,13 @@ public class Setting extends PreferenceFragment implements SharedPreferences.OnS
         findPreference(PREF_ZOOM_INC).setSummary(preferences.getString(PREF_ZOOM_INC, null));
         findPreference(PREF_MAP_TYPE).setSummary(preferences.getString(PREF_MAP_TYPE, null));
         findPreference(PREF_MAP_MIN_D).setSummary(preferences.getString(PREF_MAP_MIN_D, null));
+        findPreference(PREF_ELEMENTS_THRE).setSummary(preferences.getString(PREF_ELEMENTS_THRE, null));
         check_geolocation = (SwitchPreference) findPreference(PREF_GEO);
     }
 
     public static String getServerHost(){ return preferences.getString(PREF_H, null); }
     public static int getServerPort() { return Integer.parseInt(preferences.getString(PREF_POR, null)); }
+    public static int getElementsThreshold() { return Integer.parseInt(preferences.getString(PREF_ELEMENTS_THRE, null)); }
     public static String getDefaultPlace(){ return preferences.getString(PREF_DEF_PLACE, null); }
     public static float getDefaultZoom() { return Float.parseFloat(preferences.getString(PREF_ZOOM, null)); }
     public static float getDefaultZoomInc() { return Float.parseFloat(preferences.getString(PREF_ZOOM_INC, null)); }

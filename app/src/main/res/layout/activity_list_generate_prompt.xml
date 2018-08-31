@@ -7,10 +7,10 @@
     android:padding="10dp" >
 
     <TextView
-        android:id="@+id/id_list_clear_tittle"
+        android:id="@+id/id_list_generate_prompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Are you sure you want to clear the list?"
+        android:text="Do you want to generate a new shopping list? You will lose the current content"
         android:textAlignment="center"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 

@@ -16,7 +16,7 @@ public class MainActivity extends FragmentActivity {
     private static String TAG = "MAIN";
     private BottomNavigationView bottomNavigationView;
     private Home home_obj = null;
-    private Inventory search_obj = null;
+    private Inventory inventory_obj = null;
     private ShoppingList list_obj = null;
     private Setting setting_obj = null;
     private Map map_obj = null;
@@ -41,6 +41,10 @@ public class MainActivity extends FragmentActivity {
             setting_obj = new Setting();
         }
 
+        if (inventory_obj == null) {
+            inventory_obj = new Inventory();
+        }
+
         if (application_context == null) {
             application_context = getApplicationContext();
         }
@@ -51,6 +55,7 @@ public class MainActivity extends FragmentActivity {
 
         setContentView(com.crolopez.smartfridge.R.layout.activity_main);
         getFragmentManager().beginTransaction().add(com.crolopez.smartfridge.R.id.myfragment, setting_obj).commit();
+        getFragmentManager().beginTransaction().add(com.crolopez.smartfridge.R.id.myfragment, inventory_obj).commit();
         getFragmentManager().beginTransaction().replace(com.crolopez.smartfridge.R.id.myfragment, home_obj).commit();
 
         bottomNavigationView = (BottomNavigationView) findViewById(com.crolopez.smartfridge.R.id.id_BottomNavigationView);
@@ -68,10 +73,10 @@ public class MainActivity extends FragmentActivity {
                         newFragment = home_obj;
                         break;
                     case R.id.icon_inventory:
-                        if (search_obj == null) {
-                            search_obj = new Inventory();
+                        if (inventory_obj == null) {
+                            inventory_obj = new Inventory();
                         }
-                        newFragment = search_obj;
+                        newFragment = inventory_obj;
                         break;
                     case com.crolopez.smartfridge.R.id.icon_list:
                         if (list_obj == null) {

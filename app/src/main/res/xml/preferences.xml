@@ -60,4 +60,15 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="Shopping List">
+        <EditTextPreference
+            android:key="key_elements_threshold"
+            android:title="Elements threshold"
+            android:defaultValue="2"
+            android:inputType="number"
+            android:dialogTitle="Threshold of objects for generating the list"/>
+    </PreferenceCategory>
+
+
 </PreferenceScreen>

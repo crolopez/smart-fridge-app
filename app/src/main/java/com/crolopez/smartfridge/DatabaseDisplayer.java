@@ -284,6 +284,23 @@ public class DatabaseDisplayer {
         return tv;
     }
 
+
+    public ArrayList<Product> get_product_list(int elements_threshold) {
+        ArrayList<Product> array = new ArrayList<>();
+        Product pr;
+
+        for (int i = 0; i < products.size(); i++) {
+            pr = products.get(i);
+
+            if (pr.get_elements() <= elements_threshold) {
+                array.add(pr);
+            }
+        }
+
+        return array;
+    }
+
+
     private void set_listeners(TableRow row) {
         row.setLongClickable(true);
         row.setClickable(true);

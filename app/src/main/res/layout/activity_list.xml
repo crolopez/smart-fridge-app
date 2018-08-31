@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="120dp"
+        android:layout_marginEnd="71dp"
         android:clickable="true"
         android:focusable="true"
         app:srcCompat="@mipmap/list_icons_add" />
@@ -33,7 +33,15 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="120dp"
+        android:layout_marginStart="71dp"
         app:srcCompat="@mipmap/list_icons_remove" />
+
+    <ImageButton
+        android:id="@+id/id_shoppinglist_autorenew"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@mipmap/ic_autorenew" />
 
 </RelativeLayout>

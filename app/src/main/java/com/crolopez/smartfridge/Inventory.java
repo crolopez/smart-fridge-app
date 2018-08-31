@@ -12,12 +12,15 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class Inventory extends Fragment {
     private String TAG = "INVENTORY";
     private View myFragmentView = null;
     private Context context;
     private TableLayout table_layout = null;
     private LayoutInflater inflater;
+    static DatabaseDisplayer displayer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,7 +38,7 @@ public class Inventory extends Fragment {
     }
 
     private void set_table() {
-        table_layout= (TableLayout) myFragmentView.findViewById(R.id.id_database_layout);
+        table_layout = (TableLayout) myFragmentView.findViewById(R.id.id_database_layout);
         table_layout.setStretchAllColumns(true);
 
         // Set header
@@ -73,10 +76,9 @@ public class Inventory extends Fragment {
 
     private void set_product_table() {
         TableRow row;
-        DatabaseDisplayer displayer;
 
         displayer = new DatabaseDisplayer(inflater);
-        if(displayer.is_valid()) {
+        if (displayer.is_valid()) {
             for (int position = 0; position < displayer.get_count(); position++) {
                 row = displayer.get_row(position);
                 if (position % 2 == 1) {
@@ -85,5 +87,9 @@ public class Inventory extends Fragment {
                 table_layout.addView(row);
             }
         }
+    }
+
+    public static ArrayList<Product> get_product_list(int elements_threshold) {
+        return displayer.get_product_list(elements_threshold);
     }
 }
