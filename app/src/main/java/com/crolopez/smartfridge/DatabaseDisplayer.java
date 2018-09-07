@@ -67,6 +67,10 @@ public class DatabaseDisplayer {
 
         set_cursor(sql_tables.PRODUCT_DATA, null);
 
+        if (cursor == null) {
+            return;
+        }
+
         if (cursor.getCount() > 0) {
             is_valid = true;
         } else {
@@ -385,6 +389,7 @@ public class DatabaseDisplayer {
 
     private void set_cursor(sql_tables table, String code) {
         String query = null;
+        int result;
 
         if (!(new File(database_path).exists())) {
             return;
